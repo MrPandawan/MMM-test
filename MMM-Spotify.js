@@ -99,7 +99,8 @@ Module.register("MMM-Spotify", {
         break
       case "CURRENT_DEVICES":
         console.log(payload);
-        // this.updateCurrentPlayback(payload)
+        var sDom = document.getElementById("SPOTIFY")
+        sDom.classList.remove("noPlayback")
 
         break;
       case "CURRENT_PLAYBACK":
