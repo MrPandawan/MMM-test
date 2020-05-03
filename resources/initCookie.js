@@ -4,14 +4,15 @@ let alexa = new Alexa();
 let cookieLocation = __dirname + '/data/alexa-cookie.json';
 var fs = require('fs');
 
-const amazonserver = process.argv[3];
+const port = process.argv[3]
+const amazonserver = process.argv[2];
 const alexaserver = process.argv[4];
 
   
 alexa.init({
   proxyOnly: true,
-  proxyOwnIp: 'localhost',
-  proxyPort: 3001,
+  proxyOwnIp: amazonserver,
+  proxyPort: port,
   proxyLogLevel: 'info',
   logger: console.log,
   alexaServiceHost: 'alexa.amaxon.com'
