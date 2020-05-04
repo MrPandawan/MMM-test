@@ -58,7 +58,7 @@ module.exports = NodeHelper.create({
         //         // console.log(JSON.stringify(response))
         //         this.saveDevices(res);
         this.findCurrentSpotify().then(r => {
-            console.log('[MMM-Spotify] Starting' , r);
+            console.log('[MMM-Spotify] Starting', r);
         });
         //     })
         //     .catch(error => console.log("Erreur : " + error));
@@ -130,6 +130,7 @@ module.exports = NodeHelper.create({
     // },
 
     socketNotificationReceived: function (noti, payload) {
+        console.log("NOTIFICATION",noti);
         if (noti == "INIT") {
             this.initAfterLoading(payload)
             this.sendSocketNotification("INITIALIZED")
@@ -172,6 +173,12 @@ module.exports = NodeHelper.create({
             //     })
         }
 
+        if (noti == "AMAZON_PLAYER_UDATE") {
+            console.log("ICICI");
+            this.spotify.getCurrentPlayback(payload, (code, error, result) => {
+                this.sendSocketNotification("DONE_PLAY", result)
+            })
+        }
         // if (noti == "PAUSE") {
         //     this.spotify.pause((code, error, result) => {
         //         this.sendSocketNotification("DONE_PAUSE", result)

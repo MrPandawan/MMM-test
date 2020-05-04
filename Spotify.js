@@ -179,9 +179,9 @@ class Spotify {
             },
             json: true
         }
-        // if (bodyParam) {
-        //     authOptions.body = bodyParam
-        // }
+        if (bodyParam) {
+            authOptions.url += bodyParam
+        }
 
         // if (qsParam) {
         //     authOptions.qs = qsParam
@@ -227,8 +227,8 @@ class Spotify {
         // }
     }
 
-    getCurrentPlayback(cb) {
-        this.doRequest("/v1/me/player", "GET", null, null, cb)
+    getCurrentPlayback(params, cb) {
+        this.doRequest("/playerinfo?device=", "GET", null, params, cb)
     }
 
     getDevices(cb) {
