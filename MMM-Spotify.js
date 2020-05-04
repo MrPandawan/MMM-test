@@ -129,7 +129,7 @@ Module.register("MMM-Spotify", {
         break;
       case "DONE_PLAY":
         let playerInfo = JSON.parse(payload);
-        // this.updateCurrentPlayback(playerInfo);
+        this.updateCurrentPlayback(playerInfo);
 
         console.log(JSON.parse(payload));
 
