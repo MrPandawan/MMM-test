@@ -177,9 +177,9 @@ Module.register("MMM-AmazonMusic", {
 
   updateProgress: function (
     current,
-    end = document.getElementById("SPOTIFY_PROGRESS_END"),
-    curbar = document.getElementById("SPOTIFY_PROGRESS_CURRENT"),
-    now = document.getElementById("SPOTIFY_PROGRESS_BAR_NOW")
+    end = document.getElementsByClassName("SPOTIFY_PROGRESS_END"+ this.config.deviceName.replace(/\s+/g, ''))[0],
+    curbar = document.getElementsByClassName("SPOTIFY_PROGRESS_CURRENT" + this.config.deviceName.replace(/\s+/g, ''))[0],
+    now = document.getElementsByClassName("SPOTIFY_PROGRESS_BAR_NOW"+this.config.deviceName.replace(/\s+/g, ''))[0]
   ) {
     var msToTime = (duration) => {
       var ret = ""
@@ -274,16 +274,19 @@ Module.register("MMM-AmazonMusic", {
     var sDom = document.getElementById("SPOTIFY")
     sDom.classList.remove("noPlayback")
 
-    var cover_img = document.getElementById("SPOTIFY_COVER_IMAGE")
-    cover_img.src = newPlayback.playerInfo.mainArt.url;
+    var cover_img = document.getElementsByClassName("SPOTIFY_COVER_IMAGE"+this.config.deviceName.replace(/\s+/g, ''))
+    cover_img[0].src = newPlayback.playerInfo.mainArt.url;
 
-    var back = document.getElementById("SPOTIFY_BACKGROUND")
-    back.style.backgroundImage = `url(${newPlayback.playerInfo.mainArt.url})`
+    var back = document.getElementsByClassName("SPOTIFY_BACKGROUND"+this.config.deviceName.replace(/\s+/g, ''))
+    back[0].style.backgroundImage = `url(${newPlayback.playerInfo.mainArt.url})`
+    // var test = ".SPOTIFY_TITLE" + this.config.deviceName.replace(/\s+/g, '')
+    var title = document.getElementsByClassName("SPOTIFY_TITLE" + this.config.deviceName.replace(/\s+/g, ''))
+    var doc = title[0].querySelector(".text");
 
-    var title = document.querySelector("#SPOTIFY_TITLE .text")
-    title.textContent = newPlayback.playerInfo.infoText.title;
+    doc.textContent = newPlayback.playerInfo.infoText.title;
 
-    var artist = document.querySelector("#SPOTIFY_ARTIST .text")
+    var arr = document.getElementsByClassName("SPOTIFY_ARTIST"+ this.config.deviceName.replace(/\s+/g, ''));
+    var artist = arr[0].querySelector(".text");
     var artists = newPlayback.playerInfo.infoText.subText1
     var artistName = newPlayback.playerInfo.infoText.subText1
     for (var x = 0; x < artists.length; x++) {
@@ -333,6 +336,7 @@ Module.register("MMM-AmazonMusic", {
   getDom: function () {
     var m = document.createElement("div")
     m.id = "SPOTIFY"
+    m.classList.add("SPOTIFY" + this.config.deviceName.replace(/\s+/g, ''));
     if (this.config.style !== "default") {
       m.classList.add(this.config.style)
     }
@@ -340,25 +344,39 @@ Module.register("MMM-AmazonMusic", {
       m.classList.add(this.config.control)
     }
     m.classList.add("noPlayback")
+    
     var back = document.createElement("div")
     back.id = "SPOTIFY_BACKGROUND"
+    back.classList.add("SPOTIFY_BACKGROUND" + this.config.deviceName.replace(/\s+/g, ''));
     m.appendChild(back)
+
     var fore = document.createElement("div")
     fore.id = "SPOTIFY_FOREGROUND"
+    fore.classList.add("SPOTIFY_FOREGROUND" + this.config.deviceName.replace(/\s+/g, ''));
+
     var cover = document.createElement("div")
     cover.id = "SPOTIFY_COVER"
+    cover.classList.add("SPOTIFY_COVER" + this.config.deviceName.replace(/\s+/g, ''));
+
     var cover_img = document.createElement("img")
     cover_img.id = "SPOTIFY_COVER_IMAGE"
-
+    cover_img.classList.add("SPOTIFY_COVER_IMAGE" + this.config.deviceName.replace(/\s+/g, ''));
     cover_img.src = "./modules/MMM-AmazonMusic/resources/imgs/amazon_music.png"
     cover.appendChild(cover_img)
     fore.appendChild(cover)
+    
     var misc = document.createElement("div")
     misc.id = "SPOTIFY_MISC"
+    misc.classList.add("SPOTIFY_MISC" + this.config.deviceName.replace(/\s+/g, ''));
+
     var info = document.createElement("div")
     info.id = "SPOTIFY_INFO"
+    info.classList.add("SPOTIFY_INFO" + this.config.deviceName.replace(/\s+/g, ''));
+
     var title = document.createElement("div")
     title.id = "SPOTIFY_TITLE"
+    title.classList.add("SPOTIFY_TITLE" + this.config.deviceName.replace(/\s+/g, ''));
+
     var ti = document.createElement("span")
     ti.className = "iconify"
     ti.dataset.icon = "mdi:music"
@@ -370,6 +388,8 @@ Module.register("MMM-AmazonMusic", {
     title.appendChild(tt)
     var artist = document.createElement("div")
     artist.id = "SPOTIFY_ARTIST"
+    artist.classList.add("SPOTIFY_ARTIST" + this.config.deviceName.replace(/\s+/g, ''));
+
     var ai = document.createElement("span")
     ai.className = "iconify"
     ai.dataset.icon = "ic-baseline-person"
@@ -381,6 +401,8 @@ Module.register("MMM-AmazonMusic", {
     artist.appendChild(at)
     var device = document.createElement("div")
     device.id = "SPOTIFY_DEVICE"
+    device.classList.add("SPOTIFY_DEVICE" + this.config.deviceName.replace(/\s+/g, ''));
+
     var di = document.createElement("span")
     di.className = "iconify"
     di.dataset.icon = "ic-baseline-devices"
@@ -390,29 +412,46 @@ Module.register("MMM-AmazonMusic", {
     dt.className = "text"
     dt.textContent = ""
     device.appendChild(dt)
+
     var progress = document.createElement("div")
     progress.id = "SPOTIFY_PROGRESS"
+    progress.classList.add("SPOTIFY_PROGRESS" + this.config.deviceName.replace(/\s+/g, ''));
+
     var currentTime = document.createElement("div")
     currentTime.id = "SPOTIFY_PROGRESS_CURRENT"
+    currentTime.classList.add("SPOTIFY_PROGRESS_CURRENT" + this.config.deviceName.replace(/\s+/g, ''));
     currentTime.innerHTML = "--:--"
+
     var songTime = document.createElement("div")
     songTime.id = "SPOTIFY_PROGRESS_END"
+    songTime.classList.add("SPOTIFY_PROGRESS_END" + this.config.deviceName.replace(/\s+/g, ''));
+
     songTime.innerHTML = "--:--"
     var time = document.createElement("div")
     time.id = "SPOTIFY_PROGRESS_TIME"
+    time.classList.add("SPOTIFY_PROGRESS_TIME" + this.config.deviceName.replace(/\s+/g, ''));
+
     time.appendChild(currentTime)
     time.appendChild(songTime)
     progress.appendChild(time)
     var bar = document.createElement("div")
     bar.id = "SPOTIFY_PROGRESS_BAR"
+    bar.classList.add("SPOTIFY_PROGRESS_BAR" + this.config.deviceName.replace(/\s+/g, ''));
+
     var barNow = document.createElement("div")
     barNow.id = "SPOTIFY_PROGRESS_BAR_NOW"
+    barNow.classList.add("SPOTIFY_PROGRESS_BAR_NOW" + this.config.deviceName.replace(/\s+/g, ''));
+
     bar.appendChild(barNow)
     progress.appendChild(bar)
     var control = document.createElement("div")
     control.id = "SPOTIFY_CONTROL"
+    control.classList.add("SPOTIFY_CONTROL" + this.config.deviceName.replace(/\s+/g, ''));
+
     var shuffle = document.createElement("div")
     shuffle.id = "SPOTIFY_CONTROL_SHUFFLE"
+    shuffle.classList.add("SPOTIFY_CONTROL_SHUFFLE" + this.config.deviceName.replace(/\s+/g, ''));
+
     shuffle.addEventListener("click", () => { this.clickShuffle() })
     shuffle.className = "off"
     var si = document.createElement("span")
@@ -422,6 +461,8 @@ Module.register("MMM-AmazonMusic", {
     shuffle.appendChild(si)
     var repeat = document.createElement("div")
     repeat.id = "SPOTIFY_CONTROL_REPEAT"
+    repeat.classList.add("SPOTIFY_CONTROL_REPEAT" + this.config.deviceName.replace(/\s+/g, ''));
+
     repeat.addEventListener("click", () => { this.clickRepeat() })
     var ri = document.createElement("span")
     ri.className = "iconify"
@@ -431,14 +472,20 @@ Module.register("MMM-AmazonMusic", {
     repeat.appendChild(ri)
     var backward = document.createElement("div")
     backward.id = "SPOTIFY_CONTROL_BACKWARD"
+    backward.classList.add("SPOTIFY_CONTROL_BACKWARD" + this.config.deviceName.replace(/\s+/g, ''));
+
     backward.addEventListener("click", () => { this.clickBackward() })
     backward.innerHTML = `<span class="iconify" data-icon="mdi:skip-previous" data-inline="false"></span>`
     var forward = document.createElement("div")
     forward.id = "SPOTIFY_CONTROL_FORWARD"
+    forward.classList.add("SPOTIFY_CONTROL_FORWARD" + this.config.deviceName.replace(/\s+/g, ''));
+
     forward.innerHTML = `<span class="iconify" data-icon="mdi:skip-next" data-inline="false"></span>`
     forward.addEventListener("click", () => { this.clickForward() })
     var play = document.createElement("div")
     play.id = "SPOTIFY_CONTROL_PLAY"
+    play.classList.add("SPOTIFY_CONTROL_PLAY" + this.config.deviceName.replace(/\s+/g, ''));
+
     play.addEventListener("click", () => { this.clickPlay() })
     var pi = document.createElement("span")
     pi.className = "iconify"
