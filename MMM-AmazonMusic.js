@@ -270,8 +270,8 @@ Module.register("MMM-AmazonMusic", {
   updateSongInfo: function (newPlayback) {
     if (!newPlayback) return
     if (!newPlayback.playerInfo) return
-    console.log("FONCTIONNE ICI");
-    var sDom = document.getElementById("SPOTIFY")
+    var sDom = document.getElementsByClassName("SPOTIFY" +this.config.deviceName.replace(/\s+/g, ''))[0]
+    console.log(sDom)
     sDom.classList.remove("noPlayback")
 
     var cover_img = document.getElementsByClassName("SPOTIFY_COVER_IMAGE"+this.config.deviceName.replace(/\s+/g, ''))
