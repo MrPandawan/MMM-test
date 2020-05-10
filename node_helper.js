@@ -1,9 +1,7 @@
 //
-// Module : MMM-Spotify
+// Module : MMM-AmazonMusic
 //
-
 "use strict"
-const fetch = require('node-fetch');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
@@ -24,8 +22,6 @@ let updateOldSingleSpotifyConfigurationToNewMultipleSpotifyConfiguration = funct
 
 module.exports = NodeHelper.create({
     start: function () {
-        // exec('kill $(ps aux | grep "/alexaapi.js" | awk \'{print $2}\')');
-
         this.config = null; // Configuration come from MM config file.
         this.spotifyConfigurations = []; // Configuration from spotify.config.json file.
         this.spotify = null;
@@ -39,60 +35,48 @@ module.exports = NodeHelper.create({
                 this.spotifies.push(new Spotify(configuration));
             });
         }
-        let cmd = 'node ./modules/MMM-Spotify/resources/alexaapi.js ' + this.spotifies[0].config.AUTH_DOMAIN + ' null ' + this.spotifies[0].config.WEB_AMAZON + ' 100'
-        exec(cmd).then((str) => { })
-
     },
 
+    // Try to launch command for fetch AlexaApie
+    lancerExect: async function () {
+        let cmd = 'node ./modules/MMM-AmazonMusic/resources/alexaapi.js ' + this.spotifies[0].config.AUTH_DOMAIN + ' null ' + this.spotifies[0].config.WEB_AMAZON + ' 100'
+        try {
+            let result = await exec(cmd);
+
+        } catch (err) {
+            throw new Error(err);
+        }
+    },
+
+    // Init after DOM_OBJECTS_CREATED
     initAfterLoading: function (config) {
         this.config = config
-        let cmd = 'node ./modules/MMM-Spotify/resources/alexaapi.js ' + this.spotifies[0].config.AUTH_DOMAIN + ' null ' + this.spotifies[0].config.WEB_AMAZON + ' 100'
-        // exec(cmd).then((str) => {
-        // console.log(str.stdout);
-        // console.log(str.stderr);
-        // fetch("http://localhost:3000/devices")
-        //     .then(response => response.json())
-        //     .then(response => {
-
-        //         let res = JSON.stringify(response);
-        //         // console.log(JSON.stringify(response))
-        //         this.saveDevices(res);
-        this.findCurrentSpotify().then(r => {
-            console.log('[MMM-Spotify] Starting', r);
-        });
-        //     })
-        //     .catch(error => console.log("Erreur : " + error));
-
-        // this.updatePulse()
-
-        // });
-        // let result = await this.launchAmazonServer(this.spotifies);
-        // console.log(result);
-
+        this.lancerExect().then(l => {
+            this.findCurrentAmazonPlay().then(r => {
+                console.log('[MMM-AmazonMusic] Starting', r);
+            });
+        }).catch(e => {
+            console.log("[serveur Amazon] deja lance", e)
+            this.findCurrentAmazonPlay().then(r => {
+                console.log('[MMM-AmazonMusic] Starting', r);
+            });
+        })
     },
 
-
-    findCurrentSpotify: async function () {
+    // Find the current Amazon Play on device name
+    findCurrentAmazonPlay: async function () {
         let playing = false;
         for (const spotify of this.spotifies) {
             try {
                 let result = await this.updateSpotify(spotify);
                 this.spotify = spotify;
                 playing = true;
-                // console.log("ICICICI", result);
-                this.sendSocketNotification("CURRENT_DEVICES", result);
+                this.sendSocketNotification("CURRENT_DEVICES_" + this.config.deviceName, result);
             } catch (e) {
-                // console.log('This spotify is not playing:', spotify.config.USERNAME)
+                console.log('This spotify is not playing:', spotify.config.USERNAME)
             }
         }
-        // if (!playing) {
-        //     this.sendSocketNotification("CURRENT_PLAYBACK_FAIL", null);
-        //     setTimeout(() => {
-        //         this.findCurrentSpotify();
-        //     }, this.config.updateInterval);
-        // } else {
-        //     this.updatePulse();
-        // }
+
     },
 
     updateSpotify: function (spotify) {
@@ -119,7 +103,7 @@ module.exports = NodeHelper.create({
     //         if (code !== 200 || typeof result == "undefined") {
     //             this.sendSocketNotification("CURRENT_PLAYBACK_FAIL", null);
     //             this.spotify = null;
-    //             this.findCurrentSpotify();
+    //             this.findCurrentAmazonPlay();
     //         } else {
     //             this.sendSocketNotification("CURRENT_PLAYBACK", result);
     //             setTimeout(() => {
@@ -130,7 +114,6 @@ module.exports = NodeHelper.create({
     // },
 
     socketNotificationReceived: function (noti, payload) {
-        console.log("NOTIFICATION",noti);
         if (noti == "INIT") {
             this.initAfterLoading(payload)
             this.sendSocketNotification("INITIALIZED")
@@ -173,11 +156,27 @@ module.exports = NodeHelper.create({
             //     })
         }
 
-        if (noti == "AMAZON_PLAYER_UDATE") {
-            console.log("ICICI");
+        if (noti == "AMAZON_PLAYER_UDATE_" + this.config.deviceName) {
+            //    this.spotify.getMediaCurrent(payload, (code, error, result) => {
+            //        console.log(result);
+            //    })
             this.spotify.getCurrentPlayback(payload, (code, error, result) => {
-                this.sendSocketNotification("DONE_PLAY", result)
+                if (result) {
+                    this.sendSocketNotification("ANAZON_PLAY_DONE_" + this.config.deviceName, result)
+                } else {
+                    console.log("ERREUR Code :", code, error);
+                }
             })
+        }
+        if (noti == "AMAZON_UPDATE_PLAYING_" + this.config.deviceName) {
+            if (payload == "PLAYING") {
+                this.sendSocketNotification("CURRENT_PLAYBACK_FAIL", null);
+                setTimeout(() => {
+                    this.findCurrentAmazonPlay();
+                }, this.config.updateInterval);
+            } else {
+                this.updatePulse();
+            }
         }
         // if (noti == "PAUSE") {
         //     this.spotify.pause((code, error, result) => {

@@ -1,8 +1,3 @@
-#MMM-AMAZON
-First commit for create same as Spotify but for Amazon Music
-
-Set config as same as MMM-Spotify
-
 # MMM-Spotify
 Spotify controller for MagicMirror. Multiples accounts supported!
 

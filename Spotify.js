@@ -227,6 +227,9 @@ class Spotify {
         // }
     }
 
+    getMediaCurrent(params, cb) {
+        this.doRequest("/media?device=", "GET", null, params, cb);
+    }
     getCurrentPlayback(params, cb) {
         this.doRequest("/playerinfo?device=", "GET", null, params, cb)
     }

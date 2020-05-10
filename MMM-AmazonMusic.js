@@ -1,7 +1,8 @@
 //
 // Module : MMM-Spotify
 //
-Module.register("MMM-Spotify", {
+var i = 0;
+Module.register("MMM-AmazonMusic", {
   defaults: {
     deviceName: null,
     style: "default", // "default", "mini" available.
@@ -14,7 +15,7 @@ Module.register("MMM-Spotify", {
 
     onStart: null,
     //If you want to play something on start; set like this.
-    /*
+    /* remove all from it
     onStart: {
       deviceName: "Web Player (Chrome)", //if null, current(last) activated device will be.
       spotifyUri : "spotify:playlist:37i9dQZF1DX9EM98aZosoy", //when search is set, sportifyUri will be ignored.
@@ -36,32 +37,23 @@ Module.register("MMM-Spotify", {
   },
 
   getStyles: function () {
-    return ["MMM-Spotify.css"]
+    return ["MMM-AmazonMusic.css"]
   },
 
   start: function () {
     this.currentPlayback = null
   },
 
+  // NOTIF RECEVED MAIN MODULES
   notificationReceived: function (noti, payload, sender) {
+    // First notif after init all modules from main
     if (noti === "DOM_OBJECTS_CREATED") {
       this.sendSocketNotification("INIT", this.config)
-      //console.log(this.config)
-      //this.loadExternalScript(this.config.iconify)
-      this.onStart()
+      // after INIT and launch configuration
     }
+    // all other notif
     switch (noti) {
       case "SPOTIFY_SEARCH":
-        var pl = {
-          query: {
-            q: payload.query,
-            type: payload.type,
-          },
-          condition: {
-            random: payload.random,
-            autoplay: true,
-          }
-        }
         this.sendSocketNotification("SEARCH_AND_PLAY", pl)
         break
       case "SPOTIFY_PLAY":
@@ -94,45 +86,33 @@ Module.register("MMM-Spotify", {
     }
   },
 
+  // Get le device online and parse function
   checkDevicesOnline: function (devices) {
-    // devices.forEach(dev => {
     let obj = JSON.parse(devices)
-    // });
     console.log(obj)
     for (let index = 0; index < obj.length; index++) {
       const element = obj[index];
       if (this.config.deviceName === element.name && element.online) {
         if (element.capabilities.includes("AUDIO_PLAYER")) {
-          this.sendSocketNotification("AMAZON_PLAYER_UDATE", element.serial)
+          this.sendSocketNotification("AMAZON_PLAYER_UDATE_" + this.config.deviceName, element.serial)
         }
       }
     }
-    //   // if (dev.online) { }
-    // }
   },
 
+  // Socket NOTI from Node Helper
   socketNotificationReceived: function (noti, payload) {
     switch (noti) {
       case "INITIALIZED":
         break
-      case "CURRENT_DEVICES":
+      case "CURRENT_DEVICES_" + this.config.deviceName:
         this.checkDevicesOnline(payload);
-        console.log(payload);
-        // var sDom = document.getElementById("SPOTIFY")
-        // sDom.classList.remove("noPlayback")
-        // this.updateProgress(payload);
-        // this.checkDevicesOnline(payload);
-        // this.sendSocketNotification("DEVICE_PLAY", this.config.onStart)
-
-        // this.updateCurrentPlayback(payload)
-
-        break;
-      case "DONE_PLAY":
-        let playerInfo = JSON.parse(payload);
-        this.updateCurrentPlayback(playerInfo);
-
         console.log(JSON.parse(payload));
 
+        break;
+      case "ANAZON_PLAY_DONE_" + this.config.deviceName:
+        let playerInfo = JSON.parse(payload);
+        this.updateCurrentPlayback(playerInfo);
         break;
       case "CURRENT_PLAYBACK":
         if (
@@ -153,11 +133,6 @@ Module.register("MMM-Spotify", {
     }
   },
 
-  onStart: function () {
-    if (!this.config.onStart) return
-    this.sendSocketNotification("ONSTART", this.config.onStart)
-  },
-
   updateNoPlayback: function () {
     var dom = document.getElementById("SPOTIFY")
     dom.classList.add("inactive")
@@ -166,33 +141,35 @@ Module.register("MMM-Spotify", {
   updateCurrentPlayback: function (current) {
     if (!current) return
     if (!this.currentPlayback) {
+      console.log(current);
       console.log("PAYBACK CUrRENT");
+      console.log("INFO MusIC ICI : ", i++)
       this.updateSongInfo(current)
       // this.updatePlaying(current)
       // this.updateDevice(current)
       // this.updateShuffle(current)
       // this.updateRepeat(current)
-      // this.updateProgress(current)
-      // } else {
-      //   if (this.currentPlayback.is_playing !== current.is_playing) {
-      //     this.updateSongInfo(current)
-      //     this.updatePlaying(current)
-      //   }
-      //   if (this.currentPlayback.item.id !== current.item.id) {
-      //     this.updateSongInfo(current)
-      //   }
-      //   if (this.currentPlayback.device.id !== current.device.id) {
-      //     this.updateDevice(current)
-      //   }
-      //   if (this.currentPlayback.repeat_state !== current.repeat_state) {
-      //     this.updateRepeat(current)
-      //   }
-      //   if (this.currentPlayback.shuffle_state !== current.shuffle_state) {
-      //     this.updateShuffle(current)
-      //   }
-      //   if (this.currentPlayback.progress_ms !== current.progress_ms) {
-      //     this.updateProgress(current)
-      //   }
+      this.updateProgress(current)
+    //   } else {
+    //     if (this.currentPlayback.is_playing !== current.is_playing) {
+    //       this.updateSongInfo(current)
+    //       this.updatePlaying(current)
+    //     }
+    //     if (this.currentPlayback.item.id !== current.item.id) {
+    //       this.updateSongInfo(current)
+    //     }
+    //     if (this.currentPlayback.device.id !== current.device.id) {
+    //       this.updateDevice(current)
+    //     }
+    //     if (this.currentPlayback.repeat_state !== current.repeat_state) {
+    //       this.updateRepeat(current)
+    //     }
+    //     if (this.currentPlayback.shuffle_state !== current.shuffle_state) {
+    //       this.updateShuffle(current)
+    //     }
+    //     if (this.currentPlayback.progress_ms !== current.progress_ms) {
+    //       this.updateProgress(current)
+    //     }
     }
 
     this.currentPlayback = current
@@ -218,12 +195,13 @@ Module.register("MMM-Spotify", {
       seconds = (seconds < 10) ? "0" + seconds : seconds
       return ret + minutes + ":" + seconds
     }
-    // var songDur = current.item.duration_ms
-    // var cur = current.progress_ms
-    // var pros = (cur / songDur) * 100
-
+    var songDur = current.playerInfo.progress.mediaLength
+    var cur = current.playerInfo.progress.mediaProgress
+    var pros = (cur / songDur) * 100
+    
     end.innerHTML = msToTime(songDur)
     curbar.innerHTML = msToTime(cur)
+    console.log(songDur, cur)
     now.style.width = pros + "%"
   },
 
@@ -271,7 +249,7 @@ Module.register("MMM-Spotify", {
     var pi = document.createElement("span")
     pi.className = "iconify"
     pi.dataset.inline = "false"
-    if (newPlayback.is_playing) {
+    if (newPlayback.state === "PLAYING") {
       s.classList.add("playing")
       s.classList.remove("pausing")
       s.classList.remove("inactive")
@@ -286,14 +264,13 @@ Module.register("MMM-Spotify", {
     }
     p.innerHTML = ""
     p.appendChild(pi)
-    this.sendNotification("SPOTIFY_UPDATE_PLAYING", newPlayback.is_playing)
+    this.sendNotification("AMAZON_UPDATE_PLAYING_"+this.config.deviceName, newPlayback.state)
   },
 
   updateSongInfo: function (newPlayback) {
-    console.log(newPlayback);
     if (!newPlayback) return
     if (!newPlayback.playerInfo) return
-
+    console.log("FONCTIONNE ICI");
     var sDom = document.getElementById("SPOTIFY")
     sDom.classList.remove("noPlayback")
 
@@ -373,7 +350,7 @@ Module.register("MMM-Spotify", {
     var cover_img = document.createElement("img")
     cover_img.id = "SPOTIFY_COVER_IMAGE"
 
-    cover_img.src = "./modules/MMM-Spotify/resources/imgs/amazon_music.png"
+    cover_img.src = "./modules/MMM-AmazonMusic/resources/imgs/amazon_music.png"
     cover.appendChild(cover_img)
     fore.appendChild(cover)
     var misc = document.createElement("div")
