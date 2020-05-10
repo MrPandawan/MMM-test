@@ -50,17 +50,17 @@ module.exports = NodeHelper.create({
 
     // Init after DOM_OBJECTS_CREATED
     initAfterLoading: function (config) {
-        // this.config = config
-        // this.lancerExect().then(l => {
+        this.config = config
+        this.lancerExect().then(l => {
             this.findCurrentAmazonPlay().then(r => {
                 console.log('[MMM-AmazonMusic] Starting', r);
             });
-        // }).catch(e => {
-            // console.log("[serveur Amazon] deja lance", e)
-            // this.findCurrentAmazonPlay().then(r => {
-                // console.log('[MMM-AmazonMusic] Starting', r);
-            // });
-        // })
+        }).catch(e => {
+            console.log("[serveur Amazon] deja lance", e)
+            this.findCurrentAmazonPlay().then(r => {
+                console.log('[MMM-AmazonMusic] Starting', r);
+            });
+        })
     },
 
     // Find the current Amazon Play on device name
