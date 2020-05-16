@@ -147,7 +147,7 @@ Module.register("MMM-AmazonMusic", {
     } else {
           if (this.currentPlayback.playerInfo.infoText.title !== current.playerInfo.infoText.title) {
             this.updateSongInfo(current)
-            this.updatePlaying(current)
+            // this.updatePlaying(current)
           }
       //     if (this.currentPlayback.item.id !== current.item.id) {
       //       this.updateSongInfo(current)
