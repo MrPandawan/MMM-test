@@ -144,7 +144,7 @@ Module.register("MMM-AmazonMusic", {
       // this.updateShuffle(current)
       // this.updateRepeat(current)
       this.updateProgress(current)
-      //   } else {
+    } else {
       //     if (this.currentPlayback.is_playing !== current.is_playing) {
       //       this.updateSongInfo(current)
       //       this.updatePlaying(current)
@@ -161,9 +161,9 @@ Module.register("MMM-AmazonMusic", {
       //     if (this.currentPlayback.shuffle_state !== current.shuffle_state) {
       //       this.updateShuffle(current)
       //     }
-      //     if (this.currentPlayback.progress_ms !== current.progress_ms) {
-      //       this.updateProgress(current)
-      //     }
+      if (this.currentPlayback.playerInfo.progress.mediaProgress !== current.playerInfo.progress.mediaProgress) {
+        this.updateProgress(current)
+      }
     }
 
     this.currentPlayback = current
