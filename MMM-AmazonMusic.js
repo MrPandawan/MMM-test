@@ -145,10 +145,10 @@ Module.register("MMM-AmazonMusic", {
       // this.updateRepeat(current)
       this.updateProgress(current)
     } else {
-      //     if (this.currentPlayback.is_playing !== current.is_playing) {
-      //       this.updateSongInfo(current)
-      //       this.updatePlaying(current)
-      //     }
+          if (this.currentPlayback.playerInfo.infoText.title !== current.playerInfo.infoText.title) {
+            this.updateSongInfo(current)
+            this.updatePlaying(current)
+          }
       //     if (this.currentPlayback.item.id !== current.item.id) {
       //       this.updateSongInfo(current)
       //     }
