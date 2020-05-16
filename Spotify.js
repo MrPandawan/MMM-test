@@ -182,7 +182,7 @@ class Spotify {
         if (bodyParam) {
             authOptions.url += bodyParam
         }
-
+        console.log(authOptions.url);
         // if (qsParam) {
         //     authOptions.qs = qsParam
         // }
