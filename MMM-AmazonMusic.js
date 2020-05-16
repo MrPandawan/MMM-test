@@ -225,13 +225,14 @@ Module.register("MMM-AmazonMusic", {
 
     var arr = document.getElementById("SPOTIFY_ARTIST" + this.config.deviceName.replace(/\s+/g, ''));
     var artist = arr.querySelector(".text");
-    // var artists = newPlayback.playerInfo.infoText.subText1
     var artistName = newPlayback.playerInfo.infoText.subText1
+    var album = newPlayback.playerInfo.infoText.subText2
+
     // for (var x = 0; x < artists.length; x++) {
     //   if (!artistName) {
     //     artistName = artists[x].name
     //   } else {
-    //     artistName += ", " + artists[x].name
+        artistName += ", " + album
     //   }
     // }
     artist.textContent = artistName
