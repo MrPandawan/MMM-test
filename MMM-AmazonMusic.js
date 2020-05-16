@@ -1,6 +1,7 @@
 //
 // Module : MMM-Amazon
 //
+
 var i = 0;
 Module.register("MMM-AmazonMusic", {
   defaults: {
