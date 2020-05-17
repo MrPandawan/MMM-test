@@ -56,34 +56,34 @@ Module.register("MMM-AmazonMusic", {
     }
     // all other notif but never use for moment its for push dom click
     switch (noti) {
-      case "SPOTIFY_SEARCH":
+      case "AMAZONMUSIC_SEARCH":
         this.sendSocketNotification("SEARCH_AND_PLAY", pl)
         break
-      case "SPOTIFY_PLAY":
+      case "AMAZONMUSIC_PLAY":
         this.sendSocketNotification("PLAY", payload)
         break
-      case "SPOTIFY_PAUSE":
+      case "AMAZONMUSIC_PAUSE":
         this.sendSocketNotification("PAUSE")
         break
-      case "SPOTIFY_NEXT":
+      case "AMAZONMUSIC_NEXT":
         this.sendSocketNotification("NEXT")
         break
-      case "SPOTIFY_PREVIOUS":
+      case "AMAZONMUSIC_PREVIOUS":
         this.sendSocketNotification("PREVIOUS")
         break
-      case "SPOTIFY_VOLUME":
+      case "AMAZONMUSIC_VOLUME":
         this.sendSocketNotification("VOLUME", payload)
         break
-      case "SPOTIFY_TRANSFER":
+      case "AMAZONMUSIC_TRANSFER":
         this.sendSocketNotification("TRANSFER", payload)
         break
-      case "SPOTIFY_SHUFFLE":
+      case "AMAZONMUSIC_SHUFFLE":
         this.clickShuffle()
         break
-      case "SPOTIFY_REPEAT":
+      case "AMAZONMUSIC_REPEAT":
         this.clickRepeat()
         break
-      case "SPOTIFY_TOGGLE":
+      case "AMAZONMUSIC_TOGGLE":
         this.clickPlay()
         break
     }
@@ -131,7 +131,7 @@ Module.register("MMM-AmazonMusic", {
   },
 
   updateNoPlayback: function () {
-    var dom = document.getElementById("SPOTIFY")
+    var dom = document.getElementById("AMAZONMUSIC")
     dom.classList.add("inactive")
   },
 
@@ -177,9 +177,9 @@ Module.register("MMM-AmazonMusic", {
   // Progress
   updateProgress: function (
     current,
-    end = document.getElementById("SPOTIFY_PROGRESS_END" + this.config.deviceName.replace(/\s+/g, '')),
-    curbar = document.getElementById("SPOTIFY_PROGRESS_CURRENT" + this.config.deviceName.replace(/\s+/g, '')),
-    now = document.getElementById("SPOTIFY_PROGRESS_BAR_NOW" + this.config.deviceName.replace(/\s+/g, ''))
+    end = document.getElementById("AMAZONMUSIC_PROGRESS_END" + this.config.deviceName.replace(/\s+/g, '')),
+    curbar = document.getElementById("AMAZONMUSIC_PROGRESS_CURRENT" + this.config.deviceName.replace(/\s+/g, '')),
+    now = document.getElementById("AMAZONMUSIC_PROGRESS_BAR_NOW" + this.config.deviceName.replace(/\s+/g, ''))
   ) {
     var msToTime = (duration) => {
       var ret = ""
@@ -209,22 +209,21 @@ Module.register("MMM-AmazonMusic", {
   updateSongInfo: function (newPlayback) {
     if (!newPlayback) return
     if (!newPlayback.playerInfo) return
-    var sDom = document.getElementById("SPOTIFY" + this.config.deviceName.replace(/\s+/g, ''));
+    var sDom = document.getElementById("AMAZONMUSIC" + this.config.deviceName.replace(/\s+/g, ''));
     console.log(sDom)
     sDom.classList.remove("noPlayback")
 
-    var cover_img = document.getElementById("SPOTIFY_COVER_IMAGE" + this.config.deviceName.replace(/\s+/g, ''))
+    var cover_img = document.getElementById("AMAZONMUSIC_COVER_IMAGE" + this.config.deviceName.replace(/\s+/g, ''))
     cover_img.src = newPlayback.playerInfo.mainArt.url;
 
-    var back = document.getElementById("SPOTIFY_BACKGROUND" + this.config.deviceName.replace(/\s+/g, ''))
+    var back = document.getElementById("AMAZONMUSIC_BACKGROUND" + this.config.deviceName.replace(/\s+/g, ''))
     back.style.backgroundImage = `url(${newPlayback.playerInfo.mainArt.url})`
-    // var test = ".SPOTIFY_TITLE" + this.config.deviceName.replace(/\s+/g, '')
-    var title = document.getElementById("SPOTIFY_TITLE" + this.config.deviceName.replace(/\s+/g, ''))
+    var title = document.getElementById("AMAZONMUSIC_TITLE" + this.config.deviceName.replace(/\s+/g, ''))
     var doc = title.querySelector(".text");
 
     doc.textContent = newPlayback.playerInfo.infoText.title;
 
-    var arr = document.getElementById("SPOTIFY_ARTIST" + this.config.deviceName.replace(/\s+/g, ''));
+    var arr = document.getElementById("AMAZONMUSIC_ARTIST" + this.config.deviceName.replace(/\s+/g, ''));
     var artist = arr.querySelector(".text");
     var artistName = newPlayback.playerInfo.infoText.subText1
     var album = newPlayback.playerInfo.infoText.subText2
@@ -237,19 +236,19 @@ Module.register("MMM-AmazonMusic", {
     //   }
     // }
     artist.textContent = artistName
-    this.sendNotification("SPOTIFY_UPDATE_SONG_INFO", newPlayback)
+    this.sendNotification("AMAZONMUSIC_UPDATE_SONG_INFO", newPlayback)
   },
 
   // update device
   updateDevice: function () {
-    var device = document.getElementById("SPOTIFY_DEVICE" + this.config.deviceName.replace(/\s+/g, ''))
+    var device = document.getElementById("AMAZONMUSIC_DEVICE" + this.config.deviceName.replace(/\s+/g, ''))
     var content = device.querySelector(".text");
     content.textContent = this.config.deviceName;
   },
 
   //**********************  CONTROLS UPDATE **********************//
   updateShuffle: function (newPlayback) {
-    var shuffle = document.getElementById("SPOTIFY_CONTROL_SHUFFLE")
+    var shuffle = document.getElementById("AMAZONMUSIC_CONTROL_SHUFFLE")
     var si = document.createElement("span")
     si.className = "iconify"
     si.dataset.icon = "mdi:shuffle"
@@ -265,7 +264,7 @@ Module.register("MMM-AmazonMusic", {
   },
 
   updateRepeat: function (newPlayback) {
-    var repeat = document.getElementById("SPOTIFY_CONTROL_REPEAT")
+    var repeat = document.getElementById("AMAZONMUSIC_CONTROL_REPEAT")
     var ri = document.createElement("span")
     ri.className = "iconify"
     ri.dataset.inline = "false"
@@ -282,8 +281,8 @@ Module.register("MMM-AmazonMusic", {
 
   // only for button actif
   updatePlaying: function (newPlayback) {
-    var s = document.getElementById("SPOTIFY")
-    var p = document.getElementById("SPOTIFY_CONTROL_PLAY")
+    var s = document.getElementById("AMAZONMUSIC")
+    var p = document.getElementById("AMAZONMUSIC_CONTROL_PLAY")
     var pi = document.createElement("span")
     pi.className = "iconify"
     pi.dataset.inline = "false"
@@ -347,8 +346,8 @@ Module.register("MMM-AmazonMusic", {
 
   getDom: function () {
     var m = document.createElement("div")
-    m.id = "SPOTIFY" + this.config.deviceName.replace(/\s+/g, '');
-    m.classList.add("SPOTIFY");
+    m.id = "AMAZONMUSIC" + this.config.deviceName.replace(/\s+/g, '');
+    m.classList.add("AMAZONMUSIC");
     if (this.config.style !== "default") {
       m.classList.add(this.config.style)
     }
@@ -358,36 +357,36 @@ Module.register("MMM-AmazonMusic", {
     m.classList.add("noPlayback")
 
     var back = document.createElement("div")
-    back.id = "SPOTIFY_BACKGROUND" + this.config.deviceName.replace(/\s+/g, '');
-    back.classList.add("SPOTIFY_BACKGROUND");
+    back.id = "AMAZONMUSIC_BACKGROUND" + this.config.deviceName.replace(/\s+/g, '');
+    back.classList.add("AMAZONMUSIC_BACKGROUND");
     m.appendChild(back)
 
     var fore = document.createElement("div")
-    fore.id = "SPOTIFY_FOREGROUND" + this.config.deviceName.replace(/\s+/g, '')
-    fore.classList.add("SPOTIFY_FOREGROUND");
+    fore.id = "AMAZONMUSIC_FOREGROUND" + this.config.deviceName.replace(/\s+/g, '')
+    fore.classList.add("AMAZONMUSIC_FOREGROUND");
 
     var cover = document.createElement("div")
-    cover.id = "SPOTIFY_COVER" + this.config.deviceName.replace(/\s+/g, '');
-    cover.classList.add("SPOTIFY_COVER");
+    cover.id = "AMAZONMUSIC_COVER" + this.config.deviceName.replace(/\s+/g, '');
+    cover.classList.add("AMAZONMUSIC_COVER");
 
     var cover_img = document.createElement("img")
-    cover_img.id = "SPOTIFY_COVER_IMAGE" + this.config.deviceName.replace(/\s+/g, '');
-    cover_img.classList.add("SPOTIFY_COVER_IMAGE");
+    cover_img.id = "AMAZONMUSIC_COVER_IMAGE" + this.config.deviceName.replace(/\s+/g, '');
+    cover_img.classList.add("AMAZONMUSIC_COVER_IMAGE");
     cover_img.src = "./modules/MMM-AmazonMusic/resources/imgs/amazon_music.png"
     cover.appendChild(cover_img)
     fore.appendChild(cover)
 
     var misc = document.createElement("div")
-    misc.id = "SPOTIFY_MISC" + this.config.deviceName.replace(/\s+/g, '');
-    misc.classList.add("SPOTIFY_MISC");
+    misc.id = "AMAZONMUSIC_MISC" + this.config.deviceName.replace(/\s+/g, '');
+    misc.classList.add("AMAZONMUSIC_MISC");
 
     var info = document.createElement("div")
-    info.id = "SPOTIFY_INFO" + this.config.deviceName.replace(/\s+/g, '');
-    info.classList.add("SPOTIFY_INFO");
+    info.id = "AMAZONMUSIC_INFO" + this.config.deviceName.replace(/\s+/g, '');
+    info.classList.add("AMAZONMUSIC_INFO");
 
     var title = document.createElement("div")
-    title.id = "SPOTIFY_TITLE" + this.config.deviceName.replace(/\s+/g, '');
-    title.classList.add("SPOTIFY_TITLE");
+    title.id = "AMAZONMUSIC_TITLE" + this.config.deviceName.replace(/\s+/g, '');
+    title.classList.add("AMAZONMUSIC_TITLE");
 
     var ti = document.createElement("span")
     ti.className = "iconify"
@@ -399,8 +398,8 @@ Module.register("MMM-AmazonMusic", {
     tt.textContent = ""
     title.appendChild(tt)
     var artist = document.createElement("div")
-    artist.id = "SPOTIFY_ARTIST" + this.config.deviceName.replace(/\s+/g, '');
-    artist.classList.add("SPOTIFY_ARTIST");
+    artist.id = "AMAZONMUSIC_ARTIST" + this.config.deviceName.replace(/\s+/g, '');
+    artist.classList.add("AMAZONMUSIC_ARTIST");
 
     var ai = document.createElement("span")
     ai.className = "iconify"
@@ -412,8 +411,8 @@ Module.register("MMM-AmazonMusic", {
     at.textContent = ""
     artist.appendChild(at)
     var device = document.createElement("div")
-    device.id = "SPOTIFY_DEVICE" + this.config.deviceName.replace(/\s+/g, '');
-    device.classList.add("SPOTIFY_DEVICE");
+    device.id = "AMAZONMUSIC_DEVICE" + this.config.deviceName.replace(/\s+/g, '');
+    device.classList.add("AMAZONMUSIC_DEVICE");
 
     var di = document.createElement("span")
     di.className = "iconify"
@@ -426,43 +425,43 @@ Module.register("MMM-AmazonMusic", {
     device.appendChild(dt)
 
     var progress = document.createElement("div")
-    progress.id = "SPOTIFY_PROGRESS" + this.config.deviceName.replace(/\s+/g, '');
-    progress.classList.add("SPOTIFY_PROGRESS");
+    progress.id = "AMAZONMUSIC_PROGRESS" + this.config.deviceName.replace(/\s+/g, '');
+    progress.classList.add("AMAZONMUSIC_PROGRESS");
 
     var currentTime = document.createElement("div")
-    currentTime.id = "SPOTIFY_PROGRESS_CURRENT" + this.config.deviceName.replace(/\s+/g, '');
-    currentTime.classList.add("SPOTIFY_PROGRESS_CURRENT");
+    currentTime.id = "AMAZONMUSIC_PROGRESS_CURRENT" + this.config.deviceName.replace(/\s+/g, '');
+    currentTime.classList.add("AMAZONMUSIC_PROGRESS_CURRENT");
     currentTime.innerHTML = "--:--"
 
     var songTime = document.createElement("div")
-    songTime.id = "SPOTIFY_PROGRESS_END" + this.config.deviceName.replace(/\s+/g, '');
-    songTime.classList.add("SPOTIFY_PROGRESS_END");
+    songTime.id = "AMAZONMUSIC_PROGRESS_END" + this.config.deviceName.replace(/\s+/g, '');
+    songTime.classList.add("AMAZONMUSIC_PROGRESS_END");
 
     songTime.innerHTML = "--:--"
     var time = document.createElement("div")
-    time.id = "SPOTIFY_PROGRESS_TIME" + this.config.deviceName.replace(/\s+/g, '');
-    time.classList.add("SPOTIFY_PROGRESS_TIME");
+    time.id = "AMAZONMUSIC_PROGRESS_TIME" + this.config.deviceName.replace(/\s+/g, '');
+    time.classList.add("AMAZONMUSIC_PROGRESS_TIME");
 
     time.appendChild(currentTime)
     time.appendChild(songTime)
     progress.appendChild(time)
     var bar = document.createElement("div")
-    bar.id = "SPOTIFY_PROGRESS_BAR" + this.config.deviceName.replace(/\s+/g, '');
-    bar.classList.add("SPOTIFY_PROGRESS_BAR");
+    bar.id = "AMAZONMUSIC_PROGRESS_BAR" + this.config.deviceName.replace(/\s+/g, '');
+    bar.classList.add("AMAZONMUSIC_PROGRESS_BAR");
 
     var barNow = document.createElement("div")
-    barNow.id = "SPOTIFY_PROGRESS_BAR_NOW" + this.config.deviceName.replace(/\s+/g, '');
-    barNow.classList.add("SPOTIFY_PROGRESS_BAR_NOW");
+    barNow.id = "AMAZONMUSIC_PROGRESS_BAR_NOW" + this.config.deviceName.replace(/\s+/g, '');
+    barNow.classList.add("AMAZONMUSIC_PROGRESS_BAR_NOW");
 
     bar.appendChild(barNow)
     progress.appendChild(bar)
     var control = document.createElement("div")
-    control.id = "SPOTIFY_CONTROL" + this.config.deviceName.replace(/\s+/g, '');
-    control.classList.add("SPOTIFY_CONTROL");
+    control.id = "AMAZONMUSIC_CONTROL" + this.config.deviceName.replace(/\s+/g, '');
+    control.classList.add("AMAZONMUSIC_CONTROL");
 
     var shuffle = document.createElement("div")
-    shuffle.id = "SPOTIFY_CONTROL_SHUFFLE" + this.config.deviceName.replace(/\s+/g, '');
-    shuffle.classList.add("SPOTIFY_CONTROL_SHUFFLE");
+    shuffle.id = "AMAZONMUSIC_CONTROL_SHUFFLE" + this.config.deviceName.replace(/\s+/g, '');
+    shuffle.classList.add("AMAZONMUSIC_CONTROL_SHUFFLE");
 
     shuffle.addEventListener("click", () => { this.clickShuffle() })
     shuffle.className = "off"
@@ -472,8 +471,8 @@ Module.register("MMM-AmazonMusic", {
     si.dataset.inline = "false"
     shuffle.appendChild(si)
     var repeat = document.createElement("div")
-    repeat.id = "SPOTIFY_CONTROL_REPEAT" + this.config.deviceName.replace(/\s+/g, '');
-    repeat.classList.add("SPOTIFY_CONTROL_REPEAT");
+    repeat.id = "AMAZONMUSIC_CONTROL_REPEAT" + this.config.deviceName.replace(/\s+/g, '');
+    repeat.classList.add("AMAZONMUSIC_CONTROL_REPEAT");
 
     repeat.addEventListener("click", () => { this.clickRepeat() })
     var ri = document.createElement("span")
@@ -483,20 +482,20 @@ Module.register("MMM-AmazonMusic", {
     ri.dataset.icon = "mdi:repeat-off"
     repeat.appendChild(ri)
     var backward = document.createElement("div")
-    backward.id = "SPOTIFY_CONTROL_BACKWARD" + this.config.deviceName.replace(/\s+/g, '');
-    backward.classList.add("SPOTIFY_CONTROL_BACKWARD");
+    backward.id = "AMAZONMUSIC_CONTROL_BACKWARD" + this.config.deviceName.replace(/\s+/g, '');
+    backward.classList.add("AMAZONMUSIC_CONTROL_BACKWARD");
 
     backward.addEventListener("click", () => { this.clickBackward() })
     backward.innerHTML = `<span class="iconify" data-icon="mdi:skip-previous" data-inline="false"></span>`
     var forward = document.createElement("div")
-    forward.id = "SPOTIFY_CONTROL_FORWARD" + this.config.deviceName.replace(/\s+/g, '');
-    forward.classList.add("SPOTIFY_CONTROL_FORWARD");
+    forward.id = "AMAZONMUSIC_CONTROL_FORWARD" + this.config.deviceName.replace(/\s+/g, '');
+    forward.classList.add("AMAZONMUSIC_CONTROL_FORWARD");
 
     forward.innerHTML = `<span class="iconify" data-icon="mdi:skip-next" data-inline="false"></span>`
     forward.addEventListener("click", () => { this.clickForward() })
     var play = document.createElement("div")
-    play.id = "SPOTIFY_CONTROL_PLAY" + this.config.deviceName.replace(/\s+/g, '');
-    play.classList.add("SPOTIFY_CONTROL_PLAY");
+    play.id = "AMAZONMUSIC_CONTROL_PLAY" + this.config.deviceName.replace(/\s+/g, '');
+    play.classList.add("AMAZONMUSIC_CONTROL_PLAY");
 
     play.addEventListener("click", () => { this.clickPlay() })
     var pi = document.createElement("span")

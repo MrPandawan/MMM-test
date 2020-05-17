@@ -1,0 +1,9 @@
+[
+  {
+      "AUTH_DOMAIN" : "http://localhost",
+      "WEB_AMAZON":"alexa.amazon.fr",
+      "AUTH_PATH" : "/callback",
+      "AUTH_PORT" : ":3000",
+      "SCOPE" : "user-read-private app-remote-control playlist-read-private streaming user-read-playback-state user-modify-playback-state"
+  }
+]

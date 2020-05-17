@@ -1,24 +1,24 @@
 {
-  "name": "MMM-Spotify",
+  "name": "MMM-AmazonMusic",
   "version": "1.2.1",
-  "description": "MM module for Spotify",
-  "main": "MMM-Spotify.js",
+  "description": "MM module for AmazonMusic",
+  "main": "MMM-AmazonMusic.js",
   "keywords": [
     "magic mirror",
     "module",
-    "spotify",
+    "AmazonMusic",
     "music"
   ],
-  "author": "eouia",
+  "author": "Bimbim/Pandawan",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/eouia/MMM-Spotify/issues"
+    "url": "https://github.com/TODO/MMM-AmazonMusic/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/eouia/MMM-Spotify"
+    "url": "https://github.com/TODO/MMM-AmazonMusic"
   },
-  "homepage": "https://github.com/eouia/MMM-Spotify",
+  "homepage": "https://github.com/TODO/MMM-AmazonMusic",
   "dependencies": {
     "fetch": "^1.1.0",
     "node-fetch": "^2.6.0",

@@ -7,11 +7,11 @@ const exec = util.promisify(require('child_process').exec);
 
 const fs = require("fs")
 const path = require("path")
-const Spotify = require("./Spotify.js")
+const AmazonMusic = require("./AmazonMusic.js")
 var NodeHelper = require("node_helper")
 
 // recupere les infos lie a la cofiguration en dur
-let updateOldSingleSpotifyConfigurationToNewMultipleSpotifyConfiguration = function (configuration) {
+let updateOldSingleAmazonmusicConfigurationToNewMultipleAmazonmusicConfiguration = function (configuration) {
     if (Array.isArray(configuration)) {
         // not update required
         return configuration;
@@ -23,16 +23,16 @@ let updateOldSingleSpotifyConfigurationToNewMultipleSpotifyConfiguration = funct
 module.exports = NodeHelper.create({
     start: function () {
         this.config = null; // Configuration come from MM config file.
-        this.spotifyConfigurations = []; // Configuration from spotify.config.json file.
-        this.spotify = null;
+        this.amazonmusicConfigurations = []; // Configuration from amazonmusic.config.json file.
+        this.amazonmusic = null;
         this.devices = [];
         this.spotifies = [];
-        let file = path.resolve(__dirname, "spotify.config.json");
+        let file = path.resolve(__dirname, "amazonmusic.config.json");
         if (fs.existsSync(file)) {
             let parsedConfigurations = JSON.parse(fs.readFileSync(file));
-            this.spotifyConfigurations = updateOldSingleSpotifyConfigurationToNewMultipleSpotifyConfiguration(parsedConfigurations);
-            this.spotifyConfigurations.forEach(configuration => {
-                this.spotifies.push(new Spotify(configuration));
+            this.amazonmusicConfigurations = updateOldSingleAmazonmusicConfigurationToNewMultipleAmazonmusicConfiguration(parsedConfigurations);
+            this.amazonmusicConfigurations.forEach(configuration => {
+                this.spotifies.push(new AmazonMusic(configuration));
             });
         }
         this.lancerExect();
@@ -63,9 +63,9 @@ module.exports = NodeHelper.create({
     },
 
     // Find all devices
-    findAllDevices: function (spotify) {
+    findAllDevices: function (amazonmusic) {
         return new Promise((resolve, reject) => {
-            spotify.getDevices((code, error, result) => {
+            amazonmusic.getDevices((code, error, result) => {
                 if (code !== 200 || typeof result === "undefined") {
                     reject(error);
                 } else {
@@ -78,14 +78,14 @@ module.exports = NodeHelper.create({
     // Find the current Amazon Play on device name
     updateDevicesConnects: async function () {
         console.log("UPDATE DEVICE --> ")
-        for (const spotify of this.spotifies) {
+        for (const amazonmusic of this.spotifies) {
             try {
-                let result = await this.findAllDevices(spotify);
-                this.spotify = spotify;
+                let result = await this.findAllDevices(amazonmusic);
+                this.amazonmusic = amazonmusic;
                 this.sendSocketNotification("CURRENT_DEVICES_" + this.config.deviceName, result);
                 return result
             } catch (e) {
-                console.log('Dont get any device found:' + e, spotify.config.USERNAME);
+                console.log('Dont get any device found:' + e, this.config.deviceName);
                 throw new Error(e);
             }
         }
@@ -94,7 +94,7 @@ module.exports = NodeHelper.create({
     // Get from amazon music playing and return result
     updateAmazon: async function (serial) {
         return new Promise((resolve, reject) => {
-            this.spotify.getCurrentPlayback(serial, (code, error, result) => {
+            this.amazonmusic.getCurrentPlayback(serial, (code, error, result) => {
                 if (result) {
                     resolve(result);
                 } else {
@@ -114,7 +114,7 @@ module.exports = NodeHelper.create({
             this.sendSocketNotification("CURRENT_PLAYBACK_TRUE_" + this.config.deviceName, result)
         } catch (e) {
             playing = false;
-            console.log("[AMAZON] This Amazon is not playing:", spotify.config.deviceName)
+            console.log("[AMAZON] This Amazon is not playing:", amazonmusic.config.deviceName)
         }
         // playing is false so retry
         if (!playing) {
@@ -122,7 +122,7 @@ module.exports = NodeHelper.create({
             setTimeout(() => {
                 this.findCurrentPlayBack(serial);
             }, this.config.updateInterval);
-            // spotify is true so update Pulse to set music
+            // amazonmusic is true so update Pulse to set music
         } else {
             setTimeout(() => {
                 this.updatePulse(serial);
@@ -132,13 +132,13 @@ module.exports = NodeHelper.create({
 
     // update after stop playing
     updatePulse: function (serial) {
-        if (this.spotify == null) {
+        if (this.amazonmusic == null) {
             this.updateDevicesConnects()
             return
         }
-        this.spotify.getCurrentPlayback(serial, (code, error, result) => {
+        this.amazonmusic.getCurrentPlayback(serial, (code, error, result) => {
             if (result === "undefined" || code !== 200) {
-                this.spotify = null;
+                this.amazonmusic = null;
                 this.updateDevicesConnects();
                 this.sendSocketNotification("CURRENT_PLAYBACK_FAIL_" + this.config.deviceName);
             } else {
@@ -173,21 +173,21 @@ module.exports = NodeHelper.create({
             //         this.searchAndPlay(param, condition)
 
             //     } else if (payload.spotifyUri.match("track")) {
-            //         this.spotify.play({uris: [payload.spotifyUri]})
+            //         this.amazonmusic.play({uris: [payload.spotifyUri]})
             //     } else if (payload.spotifyUri) {
-            //         this.spotify.play({context_uri: payload.spotifyUri})
+            //         this.amazonmusic.play({context_uri: payload.spotifyUri})
             //     }
-            //     if (payload.deviceName) this.spotify.transferByName(payload.deviceName)
+            //     if (payload.deviceName) this.amazonmusic.transferByName(payload.deviceName)
             // }
 
             // if (noti == "GET_DEVICES") {
-            //     this.spotify.getDevices((code, error, result) => {
+            //     this.amazonmusic.getDevices((code, error, result) => {
             //         this.sendSocketNotification("LIST_DEVICES", result)
             //     })
             // }
 
             // if (noti == "PLAY") {
-            //     this.spotify.play(payload, (code, error, result) => {
+            //     this.amazonmusic.play(payload, (code, error, result) => {
             //         if (code !== 204) {
             //             console.log(error)
             //             return
@@ -210,25 +210,25 @@ module.exports = NodeHelper.create({
         //     }
         // }
         // if (noti == "PAUSE") {
-        //     this.spotify.pause((code, error, result) => {
+        //     this.amazonmusic.pause((code, error, result) => {
         //         this.sendSocketNotification("DONE_PAUSE", result)
         //     })
         // }
 
         // if (noti == "NEXT") {
-        //     this.spotify.next((code, error, result) => {
+        //     this.amazonmusic.next((code, error, result) => {
         //         this.sendSocketNotification("DONE_NEXT", result)
         //     })
         // }
 
         // if (noti == "PREVIOUS") {
-        //     this.spotify.previous((code, error, result) => {
+        //     this.amazonmusic.previous((code, error, result) => {
         //         this.sendSocketNotification("DONE_PREVIOUS", result)
         //     })
         // }
 
         // if (noti == "VOLUME") {
-        //     this.spotify.volume(payload, (code, error, result) => {
+        //     this.amazonmusic.volume(payload, (code, error, result) => {
         //         this.sendSocketNotification("DONE_VOLUME", result)
         //     })
         // }
@@ -238,25 +238,25 @@ module.exports = NodeHelper.create({
         // }
 
         // if (noti == "TRANSFER") {
-        //     this.spotify.transferByName(payload, (code, error, result) => {
+        //     this.amazonmusic.transferByName(payload, (code, error, result) => {
         //         this.sendSocketNotification("DONE_TRANSFER", result)
         //     })
         // }
 
         // if (noti == "REPEAT") {
-        //     this.spotify.repeat(payload, (code, error, result) => {
+        //     this.amazonmusic.repeat(payload, (code, error, result) => {
         //         this.sendSocketNotification("DONE_REPEAT", result)
         //     })
         // }
 
         // if (noti == "SHUFFLE") {
-        //     this.spotify.shuffle(payload, (code, error, result) => {
+        //     this.amazonmusic.shuffle(payload, (code, error, result) => {
         //         this.sendSocketNotification("DONE_SHUFFLE", result)
         //     })
         // }
 
         // if (noti == "REPLAY") {
-        //     this.spotify.replay((code, error, result) => {
+        //     this.amazonmusic.replay((code, error, result) => {
         //         this.sendSocketNotification("DONE_REPLAY", result)
         //     })
         // }
@@ -280,11 +280,11 @@ module.exports = NodeHelper.create({
     //             ret[retType] = (retType == "uris") ? [r.uri] : r.uri
     //             return ret
     //         } else {
-    //             console.log("[SPOTIFY] Unplayable item: ", r)
+    //             console.log("[AMAZONMUSIC] Unplayable item: ", r)
     //             return false
     //         }
     //     }
-    //     this.spotify.search(param, (code, error, result) => {
+    //     this.amazonmusic.search(param, (code, error, result) => {
     //         //console.log(code, error, result)
     //         var foundForPlay = null
     //         if (code == 200) { //When success
@@ -305,7 +305,7 @@ module.exports = NodeHelper.create({
     //             }
     //             //console.log(foundForPlay)
     //             if (foundForPlay && condition.autoplay) {
-    //                 this.spotify.play(foundForPlay, (code, error, result) => {
+    //                 this.amazonmusic.play(foundForPlay, (code, error, result) => {
     //                     if (code !== 204) {
     //                         return
     //                     }

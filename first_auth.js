@@ -1,8 +1,7 @@
 const fs = require("fs");
 const path = require("path");
-const Spotify = require("./Spotify.js");
 
-let file = path.resolve(__dirname, "spotify.config.json");
+let file = path.resolve(__dirname, "amazonmusic.config.json");
 let configurations = [];
 
 if (fs.existsSync(file)) {
@@ -13,16 +12,8 @@ if (fs.existsSync(file)) {
 }
 
 function authorize(configuration) {
-    return new Promise((resolve, reject) => {
-        // let Auth = new Spotify(configuration);
-        // Auth.authFlow(() => {
-        //     console.log(configuration.USERNAME, "\nCurrent accessToken:\n", Auth.accessToken());
-        //     console.log("First authorization is finished. Check ", configuration.TOKEN);
+    return new Promise((resolve, reject) => {       
             resolve();
-        // }, () => {
-        //     console.log("Error in authentication flow!");
-        //     reject();
-        // });
     });
 }
 
