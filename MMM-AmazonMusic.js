@@ -119,11 +119,10 @@ Module.register("MMM-AmazonMusic", {
       case "CURRENT_PLAYBACK_TRUE_" + this.config.deviceName:
         let playerInfo = JSON.parse(payload);
         this.updateCurrentPlayback(playerInfo);
-        console.log(playerInfo)
         break;
       case "CURRENT_PLAYBACK_FAIL_" + this.config.deviceName:
         console.log("NOT PLAYBACK")
-      // this.updateNoPlayback()
+        this.updateNoPlayback()
     }
     if (noti.search("DONE_") > -1) {
       this.sendNotification(noti)
@@ -131,7 +130,7 @@ Module.register("MMM-AmazonMusic", {
   },
 
   updateNoPlayback: function () {
-    var dom = document.getElementById("AMAZONMUSIC")
+    var dom = document.getElementById("AMAZONMUSIC" + this.config.deviceName.replace(/\s+/g, ''))
     dom.classList.add("inactive")
   },
 
@@ -140,16 +139,16 @@ Module.register("MMM-AmazonMusic", {
     if (!this.currentPlayback) {
       console.log(current);
       this.updateSongInfo(current);
-      // this.updatePlaying(current)
+      this.updatePlaying(current);
       this.updateDevice();
       // this.updateShuffle(current)
       // this.updateRepeat(current)
       this.updateProgress(current)
     } else {
-          if (this.currentPlayback.playerInfo.infoText.title !== current.playerInfo.infoText.title) {
-            this.updateSongInfo(current)
-            // this.updatePlaying(current)
-          }
+      if (this.currentPlayback.playerInfo.infoText.title !== current.playerInfo.infoText.title) {
+        this.updateSongInfo(current)
+        this.updatePlaying(current)
+      }
       //     if (this.currentPlayback.item.id !== current.item.id) {
       //       this.updateSongInfo(current)
       //     }
@@ -170,10 +169,6 @@ Module.register("MMM-AmazonMusic", {
     this.currentPlayback = current
   },
 
-
-
-
-
   // Progress
   updateProgress: function (
     current,
@@ -183,16 +178,14 @@ Module.register("MMM-AmazonMusic", {
   ) {
     var msToTime = (duration) => {
       var ret = ""
-      var milliseconds = parseInt((duration % 1000) / 100)
-        , seconds = parseInt((duration / 1000) % 60)
-        , minutes = parseInt((duration / (1000 * 60)) % 60)
-        , hours = parseInt((duration / (1000 * 60 * 60)) % 24)
+      var d = Number(duration)
+      var seconds = Math.floor(d % 3600 % 60)
+        , minutes = Math.floor(d % 3600 / 60)
+        , hours = Math.floor(d / 3600)
       if (hours > 0) {
         hours = (hours < 10) ? "0" + hours : hours
         ret = ret + hours + ":"
       }
-      minutes = (minutes < 10) ? "0" + minutes : minutes
-      seconds = (seconds < 10) ? "0" + seconds : seconds
       return ret + minutes + ":" + seconds
     }
     var songDur = current.playerInfo.progress.mediaLength
@@ -232,7 +225,7 @@ Module.register("MMM-AmazonMusic", {
     //   if (!artistName) {
     //     artistName = artists[x].name
     //   } else {
-        artistName += ", " + album
+    artistName += ", " + album
     //   }
     // }
     artist.textContent = artistName
@@ -281,27 +274,27 @@ Module.register("MMM-AmazonMusic", {
 
   // only for button actif
   updatePlaying: function (newPlayback) {
-    var s = document.getElementById("AMAZONMUSIC")
-    var p = document.getElementById("AMAZONMUSIC_CONTROL_PLAY")
+    var s = document.getElementById("AMAZONMUSIC" + this.config.deviceName.replace(/\s+/g, ''))
+    var p = document.getElementById("AMAZONMUSIC_CONTROL_PLAY" + this.config.deviceName.replace(/\s+/g, ''))
     var pi = document.createElement("span")
     pi.className = "iconify"
     pi.dataset.inline = "false"
-    if (newPlayback.state === "PLAYING") {
+    if (newPlayback.playerInfo.state === "PLAYING") {
       s.classList.add("playing")
       s.classList.remove("pausing")
       s.classList.remove("inactive")
-      pi.dataset.icon = "mdi:play-circle-outline"
+      pi.dataset.icon = "mdi:pause-circle-outline"
       p.className = "playing"
     } else {
       s.classList.add("pausing")
       s.classList.remove("playing")
       s.classList.remove("inactive")
-      pi.dataset.icon = "mdi:pause-circle-outline"
+      pi.dataset.icon = "mdi:play-circle-outline"
       p.className = "pausing"
     }
     p.innerHTML = ""
     p.appendChild(pi)
-    this.sendNotification("AMAZON_UPDATE_PLAYING_" + this.config.deviceName, newPlayback.state)
+    this.sendNotification("AMAZON_UPDATE_PLAYING_" + this.config.deviceName, newPlayback.playerInfo.state)
   },
 
   /*****************   END ONLY CONTROL  *****************/

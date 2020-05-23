@@ -58,7 +58,7 @@ module.exports = NodeHelper.create({
         this.updateDevicesConnects().then(r => {
             console.log('[MMM-AmazonMusic] Starting', r);
         }).catch(e => {
-            console.log('[MMM-AmazonMusic] Starting', r);
+            console.log('[MMM-AmazonMusic] Starting');
         })
     },
 
@@ -199,16 +199,17 @@ module.exports = NodeHelper.create({
         if (noti == "AMAZON_CURRENT_PLAYBACK_" + this.config.deviceName) {
             this.findCurrentPlayBack(payload);
         }
-        // if (noti == "AMAZON_UPDATE_PLAYING_" + this.config.deviceName) {
-        //     if (payload == "PLAYING") {
-        //         this.sendSocketNotification("CURRENT_PLAYBACK_FAIL", null);
-        //         setTimeout(() => {
-        //             this.updateDevicesConnects();
-        //         }, this.config.updateInterval);
-        //     } else {
-        //         this.updatePulse();
-        //     }
-        // }
+        if (noti == "AMAZON_UPDATE_PLAYING_" + this.config.deviceName) {
+            console.log("PLAYNG")
+            if (payload == "PLAYING") {
+                this.sendSocketNotification("CURRENT_PLAYBACK_FAIL_" + this.config.deviceName, null);
+                // setTimeout(() => {
+                //     this.updateDevicesConnects();
+                // }, this.config.updateInterval);
+            } else {
+                this.updatePulse();
+            }
+        }
         // if (noti == "PAUSE") {
         //     this.amazonmusic.pause((code, error, result) => {
         //         this.sendSocketNotification("DONE_PAUSE", result)
