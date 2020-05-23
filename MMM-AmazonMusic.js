@@ -186,6 +186,8 @@ Module.register("MMM-AmazonMusic", {
         hours = (hours < 10) ? "0" + hours : hours
         ret = ret + hours + ":"
       }
+      minutes = (minutes < 10) ? "0" + minutes : minutes
+      seconds = (seconds < 10) ? "0" + seconds : seconds
       return ret + minutes + ":" + seconds
     }
     var songDur = current.playerInfo.progress.mediaLength
