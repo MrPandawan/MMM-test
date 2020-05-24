@@ -4,3 +4,7 @@
 
 node_modules
 yarn.lock
+.DS_Store
+Untitled.code-workspace
+resources/test.json
+

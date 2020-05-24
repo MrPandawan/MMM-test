@@ -8,12 +8,12 @@ Module.register("MMM-AmazonMusic", {
     deviceName: null,
     style: "default", // "default", "mini" available.
     control: "default", //"default", "hidden" available
-    updateInterval: 1000,
+    updateInterval: 3000,
     allowDevices: [],
     iconify: "https://code.iconify.design/1/1.0.0-rc7/iconify.min.js",
     //iconify: null,
     //When you use this module with `MMM-CalendarExt` or any other `iconify` used modules together, Set this null.
-
+    deviceSerial: null,
     onStart: null,
     //If you want to play something on start; set like this.
     /* remove all from it
@@ -98,6 +98,7 @@ Module.register("MMM-AmazonMusic", {
       console.log(this.config.deviceName);
       if (this.config.deviceName === element.name && element.online) {
         if (element.capabilities.includes("AUDIO_PLAYER")) {
+          this.config.deviceSerial = element.serial;
           this.sendSocketNotification("AMAZON_CURRENT_PLAYBACK_" + this.config.deviceName, element.serial)
           break;
         }
@@ -118,11 +119,12 @@ Module.register("MMM-AmazonMusic", {
       // play the current 
       case "CURRENT_PLAYBACK_TRUE_" + this.config.deviceName:
         let playerInfo = JSON.parse(payload);
+        
         this.updateCurrentPlayback(playerInfo);
         break;
       case "CURRENT_PLAYBACK_FAIL_" + this.config.deviceName:
         console.log("NOT PLAYBACK")
-        this.updateNoPlayback()
+        // this.updateNoPlayback()
     }
     if (noti.search("DONE_") > -1) {
       this.sendNotification(noti)
@@ -135,9 +137,9 @@ Module.register("MMM-AmazonMusic", {
   },
 
   updateCurrentPlayback: function (current) {
+    console.log(current);
     if (!current) return
     if (!this.currentPlayback) {
-      console.log(current);
       this.updateSongInfo(current);
       this.updatePlaying(current);
       this.updateDevice();
@@ -152,9 +154,10 @@ Module.register("MMM-AmazonMusic", {
       //     if (this.currentPlayback.item.id !== current.item.id) {
       //       this.updateSongInfo(current)
       //     }
-      //     if (this.currentPlayback.device.id !== current.device.id) {
-      //       this.updateDevice(current)
-      //     }
+      if (this.currentPlayback.playerInfo.state !== current.playerInfo.state) {
+        console.log("Change State");
+        this.updatePlaying(current)
+      }
       //     if (this.currentPlayback.repeat_state !== current.repeat_state) {
       //       this.updateRepeat(current)
       //     }
@@ -241,7 +244,31 @@ Module.register("MMM-AmazonMusic", {
     content.textContent = this.config.deviceName;
   },
 
-  //**********************  CONTROLS UPDATE **********************//
+  updatePlaying: function (newPlayback) {
+    var s = document.getElementById("AMAZONMUSIC" + this.config.deviceName.replace(/\s+/g, ''))
+    var p = document.getElementById("AMAZONMUSIC_CONTROL_PLAY" + this.config.deviceName.replace(/\s+/g, ''))
+    var pi = document.createElement("span")
+    pi.className = "iconify"
+    pi.dataset.inline = "false"
+    if (newPlayback.playerInfo.state === "PLAYING") {
+      s.classList.add("playing")
+      s.classList.remove("pausing")
+      s.classList.remove("inactive")
+      pi.dataset.icon = "mdi:pause-circle-outline"
+      p.className = "playing"
+    } else {
+      s.classList.add("pausing")
+      s.classList.remove("playing")
+      s.classList.remove("inactive")
+      pi.dataset.icon = "mdi:play-circle-outline"
+      p.className = "pausing"
+    }
+    p.innerHTML = ""
+    p.appendChild(pi)
+    // this.sendNotification("AMAZON_UPDATE_PLAYING_" + this.config.deviceName, newPlayback.playerInfo.state)
+  },
+
+  //**********************  CONTROLS NOT  USE **********************//
   updateShuffle: function (newPlayback) {
     var shuffle = document.getElementById("AMAZONMUSIC_CONTROL_SHUFFLE")
     var si = document.createElement("span")
@@ -274,66 +301,45 @@ Module.register("MMM-AmazonMusic", {
     repeat.appendChild(ri)
   },
 
-  // only for button actif
-  updatePlaying: function (newPlayback) {
-    var s = document.getElementById("AMAZONMUSIC" + this.config.deviceName.replace(/\s+/g, ''))
-    var p = document.getElementById("AMAZONMUSIC_CONTROL_PLAY" + this.config.deviceName.replace(/\s+/g, ''))
-    var pi = document.createElement("span")
-    pi.className = "iconify"
-    pi.dataset.inline = "false"
-    if (newPlayback.playerInfo.state === "PLAYING") {
-      s.classList.add("playing")
-      s.classList.remove("pausing")
-      s.classList.remove("inactive")
-      pi.dataset.icon = "mdi:pause-circle-outline"
-      p.className = "playing"
-    } else {
-      s.classList.add("pausing")
-      s.classList.remove("playing")
-      s.classList.remove("inactive")
-      pi.dataset.icon = "mdi:play-circle-outline"
-      p.className = "pausing"
-    }
-    p.innerHTML = ""
-    p.appendChild(pi)
-    this.sendNotification("AMAZON_UPDATE_PLAYING_" + this.config.deviceName, newPlayback.playerInfo.state)
+  clickRepeat: function () {
+    // var c = this.currentPlayback.repeat_state
+    // var n = ""
+    // if (c === "off") n = "track"
+    // if (c === "track") n = "context"
+    // if (c === "context") n = "off"
+    // this.sendSocketNotification("REPEAT", n)
   },
 
-  /*****************   END ONLY CONTROL  *****************/
+  clickShuffle: function () {
+    // this.sendSocketNotification("SHUFFLE", !this.currentPlayback.shuffle_state)
+  },
+
+  /*****************   END CONTROL NOT USE *****************/
 
   /********************** CONTROLS BUTTON  *******************/
 
   clickPlay: function () {
-    if (this.currentPlayback.is_playing) {
-      this.sendSocketNotification("PAUSE")
+    if (this.currentPlayback.playerInfo.state === PLAYING) {
+      console.log("click on pause");
+      this.sendSocketNotification("PAUSE_" + this.config.deviceName, this.config.deviceSerial);
     } else {
-      this.sendSocketNotification("PLAY")
+      console.log("click on play");
+      this.sendSocketNotification("PLAY_" + this.config.deviceName, this.config.deviceSerial);
     }
-  },
-
-  clickRepeat: function () {
-    var c = this.currentPlayback.repeat_state
-    var n = ""
-    if (c === "off") n = "track"
-    if (c === "track") n = "context"
-    if (c === "context") n = "off"
-    this.sendSocketNotification("REPEAT", n)
-  },
-
-  clickShuffle: function () {
-    this.sendSocketNotification("SHUFFLE", !this.currentPlayback.shuffle_state)
   },
 
   clickBackward: function () {
-    if (this.currentPlayback.progress_ms < 3000) {
-      this.sendSocketNotification("PREVIOUS")
-    } else {
-      this.sendSocketNotification("REPLAY")
-    }
+    console.log("click on backward");
+    // if (this.currentPlayback.progress_ms < 3000) {
+    //   this.sendSocketNotification("PREVIOUS")
+    // } else {
+    //   this.sendSocketNotification("REPLAY")
+    // }
   },
 
   clickForward: function () {
-    this.sendSocketNotification("NEXT")
+    console.log("click on next");
+    this.sendSocketNotification("NEXT_" + this.config.deviceName, this.config.deviceSerial)
   },
 
 

@@ -48,7 +48,6 @@ module.exports = NodeHelper.create({
         } catch (err) {
             throw new Error(err);
         }
-        // })
     },
 
     // Init after DOM_OBJECTS_CREATED
@@ -86,6 +85,11 @@ module.exports = NodeHelper.create({
                 return result
             } catch (e) {
                 console.log('Dont get any device found:' + e, this.config.deviceName);
+                console.log("internet connexion failed OR SERVER amazon down");
+                this.lancerExect();
+                setTimeout(() => {
+                    this.updateDevicesConnects();
+                }, 5000);
                 throw new Error(e);
             }
         }
@@ -199,28 +203,36 @@ module.exports = NodeHelper.create({
         if (noti == "AMAZON_CURRENT_PLAYBACK_" + this.config.deviceName) {
             this.findCurrentPlayBack(payload);
         }
-        if (noti == "AMAZON_UPDATE_PLAYING_" + this.config.deviceName) {
-            console.log("PLAYNG")
-            if (payload == "PLAYING") {
-                this.sendSocketNotification("CURRENT_PLAYBACK_FAIL_" + this.config.deviceName, null);
-                // setTimeout(() => {
-                //     this.updateDevicesConnects();
-                // }, this.config.updateInterval);
-            } else {
-                this.updatePulse();
-            }
+        // not use
+        // if (noti == "AMAZON_UPDATE_PLAYING_" + this.config.deviceName) {
+        //     console.log("PLAYNG")
+        //     if (payload == "PLAYING") {
+        //         this.sendSocketNotification("CURRENT_PLAYBACK_FAIL_" + this.config.deviceName, null);
+        //         // setTimeout(() => {
+        //         //     this.updateDevicesConnects();
+        //         // }, this.config.updateInterval);
+        //     } else {
+        //         this.updatePulse();
+        //     }
+        // }
+        if (noti == "PAUSE_" + this.config.deviceName) {
+            this.amazonmusic.pause(payload, (code, error, result) => {
+                console.log(code, error, "ERROR ICI POUR PAUSE");
+                this.sendSocketNotification("DONE_PAUSE", result)
+            })
         }
-        // if (noti == "PAUSE") {
-        //     this.amazonmusic.pause((code, error, result) => {
-        //         this.sendSocketNotification("DONE_PAUSE", result)
-        //     })
-        // }
-
-        // if (noti == "NEXT") {
-        //     this.amazonmusic.next((code, error, result) => {
-        //         this.sendSocketNotification("DONE_NEXT", result)
-        //     })
-        // }
+        if (noti == "PLAY_" + this.config.deviceName) {
+            this.amazonmusic.play(payload, (code, error, result) => {
+                console.log(code, error, "ERROR ICI POUR PLAY");
+                this.sendSocketNotification("DONE_PAUSE", result)
+            })
+        }
+        if (noti == "NEXT_"+this.config.deviceName) {
+            this.amazonmusic.next(payload, (code, error, result) => {
+                console.log(code, error, "ERROR ICI POUR NEXT");
+                this.sendSocketNotification("DONE_NEXT", result)
+            })
+        }
 
         // if (noti == "PREVIOUS") {
         //     this.amazonmusic.previous((code, error, result) => {

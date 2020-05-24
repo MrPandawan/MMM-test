@@ -12,7 +12,6 @@ const opn = require("open")
 const express = require("express")
 const app = express()
 
-
 class AmazonMusic {
     constructor(config = null) {
         if (config == null) {
@@ -33,27 +32,25 @@ class AmazonMusic {
         redirect_uri += this.config.AUTH_PATH
         this.redirect_uri = redirect_uri
         this.state = Date.now()
-
     }
 
     authFlow(afterCallback = () => {
     }, error = () => {
     }) {
-        
-            
-
-        
     }
 
-   
-
+    /***** Alexa.Command *****
+        URL: /command?device=?&command=?
+        device - String - name of the device
+        command - String - command : pause|play|next|prev|fwd|rwd|shuffle|repeat
+    */
     doRequest(api, type, qsParam, bodyParam, cb) {
         //console.log("TESSSTT");
         var authOptions = {
             url: this.config.AUTH_DOMAIN + this.config.AUTH_PORT + api,
             method: type,
             headers: {
-                'Authorization': "Bearer " 
+                'Authorization': "Bearer "
             },
             json: true
         }
@@ -66,21 +63,10 @@ class AmazonMusic {
         // }
         // console.log(authOptions);
         var req = () => {
-            // fetch(authOptions.url)
-            //     .then(response => response.json())
-            //     .then(response => {
-
-            //         let res = JSON.stringify(response);
-            //         // console.log(JSON.stringify(response))
-            //         cb(res);
-  
-            //     })
-            //     .catch(error => cb("Erreur : " + error));
-
             request(authOptions.url, (error, response, body) => {
                 if (error) {
                     console.log(`[AMAZONMUSIC] API Request fail on :`, api)
-                    console.log(error, body)
+                    cb(error, body)
                 } else {
                     if (api !== "/v1/me/player" && type !== "GET") {
                         console.log(`[AMAZONMUSIC] API Requested:`, api)
@@ -93,14 +79,10 @@ class AmazonMusic {
                         console.log(`[AMAZONMUSIC] Invalid response`)
                         cb('400', error, body)
                     }
-
                 }
             })
         }
-
-      
         req()
-
     }
 
     getMediaCurrent(params, cb) {
@@ -114,19 +96,19 @@ class AmazonMusic {
         this.doRequest("/devices", "GET", null, null, cb)
     }
 
+    // command?device=  ae816d7d455646f6801e5750ad01065c  &command=play
     play(param, cb) {
-        this.doRequest("/v1/me/player/play", "PUT", null, param, cb)
+        this.doRequest("/command?device=", "POST", null, param + '&command=play', cb)
     }
 
-    pause(cb) {
-        this.doRequest("/v1/me/player/pause", "PUT", null, null, cb)
+    // command?device=  ae816d7d455646f6801e5750ad01065c  &command=pause
+    pause(param, cb) {
+        this.doRequest("/command?device=", "POST", null, param + '&command=pause', cb)
     }
 
-    next(cb) {
-        this.doRequest("/v1/me/player/next", "POST", null, null, (code, error, body) => {
-            this.doRequest("/v1/me/player/seek", "PUT", { position_ms: 0 }, null, cb)
-        })
-
+    // command?device=  ae816d7d455646f6801e5750ad01065c  &command=next
+    next(param, cb) {
+        this.doRequest("/command?device=", "POST", null, param + '&command=pause', cb)
     }
 
     previous(cb) {
