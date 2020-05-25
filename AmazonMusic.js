@@ -103,7 +103,7 @@ class AmazonMusic {
 
     // command?device=  ae816d7d455646f6801e5750ad01065c  &command=pause
     pause(param, cb) {
-        this.doRequest("/command?device=prev", "POST", null, param + '&command=pause', cb)
+        this.doRequest("/command?device=", "POST", null, param + '&command=pause', cb)
     }
 
     // command?device=  ae816d7d455646f6801e5750ad01065c  &command=next

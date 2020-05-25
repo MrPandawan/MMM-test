@@ -35,7 +35,7 @@ module.exports = NodeHelper.create({
                 this.spotifies.push(new AmazonMusic(configuration));
             });
         }
-        this.lancerExect();
+        //this.lancerExect();
     },
 
     // Try to launch command for fetch AlexaApie
@@ -86,7 +86,7 @@ module.exports = NodeHelper.create({
             } catch (e) {
                 console.log('Dont get any device found:' + e, this.config.deviceName);
                 console.log("internet connexion failed OR SERVER amazon down");
-                this.lancerExect();
+                //this.lancerExect();
                 setTimeout(() => {
                     this.updateDevicesConnects();
                 }, 5000);
@@ -261,10 +261,10 @@ module.exports = NodeHelper.create({
         }
 	if (noti == "REPEAT_"+this.config.deviceName) {
             this.amazonmusic.repeat(payload, (code, error, result) => {
-                if result {
+                if (result) {
 			console.log(result);
 		}
-	        else if error {
+	        else if (error) {
 			console.log(code, error, "ERROR ICI POUR REPEAT");
 		}
                 this.sendSocketNotification("DONE_REPEAT", result)
