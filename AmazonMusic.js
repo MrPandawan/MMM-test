@@ -103,23 +103,22 @@ class AmazonMusic {
 
     // command?device=  ae816d7d455646f6801e5750ad01065c  &command=pause
     pause(param, cb) {
-        this.doRequest("/command?device=", "POST", null, param + '&command=pause', cb)
+        this.doRequest("/command?device=prev", "POST", null, param + '&command=pause', cb)
     }
 
     // command?device=  ae816d7d455646f6801e5750ad01065c  &command=next
     next(param, cb) {
-        this.doRequest("/command?device=", "POST", null, param + '&command=pause', cb)
+        this.doRequest("/command?device=", "POST", null, param + '&command=next', cb)
     }
 
-    previous(cb) {
-        /*
-        this.doRequest("/v1/me/player/previous", "POST", null, null, (code, error, body)=>{
-          this.doRequest("/v1/me/player/seek", "PUT", null, {position_ms:0}, cb)
-        })
-        */
-        this.doRequest("/v1/me/player/seek", "PUT", { position_ms: 0 }, null, (code, error, body) => {
-            this.doRequest("/v1/me/player/previous", "POST", null, null, cb)
-        })
+    // command?device=  ae816d7d455646f6801e5750ad01065c  &command=prev
+    previous(param, cb) {
+        this.doRequest("/command?device=", "POST", null, param + '&command=previous', cb)
+    }
+
+    // command?device=  ae816d7d455646f6801e5750ad01065c  &command=next
+    repeat(param, cb) {
+        this.doRequest("/command?device=", "POST", null, param + '&command=repeat', cb)
     }
 
     search(param, cb) {
@@ -152,10 +151,6 @@ class AmazonMusic {
 
     volume(volume = 50, cb) {
         this.doRequest("/v1/me/player/volume", "PUT", { volume_percent: volume }, null, cb)
-    }
-
-    repeat(state, cb) {
-        this.doRequest("/v1/me/player/repeat", "PUT", { state: state }, null, cb)
     }
 
     shuffle(state, cb) {

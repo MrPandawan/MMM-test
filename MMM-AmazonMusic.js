@@ -8,7 +8,7 @@ Module.register("MMM-AmazonMusic", {
     deviceName: null,
     style: "default", // "default", "mini" available.
     control: "default", //"default", "hidden" available
-    updateInterval: 3000,
+    updateInterval: 1000,
     allowDevices: [],
     iconify: "https://code.iconify.design/1/1.0.0-rc7/iconify.min.js",
     //iconify: null,
@@ -319,7 +319,7 @@ Module.register("MMM-AmazonMusic", {
   /********************** CONTROLS BUTTON  *******************/
 
   clickPlay: function () {
-    if (this.currentPlayback.playerInfo.state === PLAYING) {
+    if (this.currentPlayback.playerInfo.state === "PLAYING") {
       console.log("click on pause");
       this.sendSocketNotification("PAUSE_" + this.config.deviceName, this.config.deviceSerial);
     } else {
@@ -330,11 +330,11 @@ Module.register("MMM-AmazonMusic", {
 
   clickBackward: function () {
     console.log("click on backward");
-    // if (this.currentPlayback.progress_ms < 3000) {
-    //   this.sendSocketNotification("PREVIOUS")
-    // } else {
-    //   this.sendSocketNotification("REPLAY")
-    // }
+    if (this.currentPlayback.playerInfo.progress.mediaProgress < 3000) {
+       this.sendSocketNotification("PREVIOUS_" + this.config.deviceName, this.config.deviceSerial)
+    } else {
+       this.sendSocketNotification("REPLAY_" + this.config.deviceName, this.config.deviceSerial)
+    }
   },
 
   clickForward: function () {

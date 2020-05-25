@@ -217,28 +217,61 @@ module.exports = NodeHelper.create({
         // }
         if (noti == "PAUSE_" + this.config.deviceName) {
             this.amazonmusic.pause(payload, (code, error, result) => {
-                console.log(code, error, "ERROR ICI POUR PAUSE");
+                if (result) {
+			console.log(result);
+		}
+	        else if (error) {
+			console.log(code, error, "ERROR ICI POUR PAUSE");
+		}
                 this.sendSocketNotification("DONE_PAUSE", result)
             })
         }
         if (noti == "PLAY_" + this.config.deviceName) {
             this.amazonmusic.play(payload, (code, error, result) => {
-                console.log(code, error, "ERROR ICI POUR PLAY");
-                this.sendSocketNotification("DONE_PAUSE", result)
+                if (result) {
+			console.log(result);
+		}
+	        else if (error) {
+			console.log(code, error, "ERROR ICI POUR PLAY");
+		}
+                this.sendSocketNotification("DONE_PLAY", result)
             })
         }
         if (noti == "NEXT_"+this.config.deviceName) {
             this.amazonmusic.next(payload, (code, error, result) => {
-                console.log(code, error, "ERROR ICI POUR NEXT");
+                if (result) {
+			console.log(result);
+		}
+	        else if (error) {
+			console.log(code, error, "ERROR ICI POUR NEXT");
+		}
                 this.sendSocketNotification("DONE_NEXT", result)
             })
         }
+	if (noti == "PREVIOUS_"+this.config.deviceName) {
+            this.amazonmusic.previous(payload, (code, error, result) => {
+                if (result) {
+			console.log(result);
+		}
+	        else if (error) {
+			console.log(code, error, "ERROR ICI POUR PREV");
+		}
+                this.sendSocketNotification("DONE_PREV", result)
+            })
+        }
+	if (noti == "REPEAT_"+this.config.deviceName) {
+            this.amazonmusic.repeat(payload, (code, error, result) => {
+                if result {
+			console.log(result);
+		}
+	        else if error {
+			console.log(code, error, "ERROR ICI POUR REPEAT");
+		}
+                this.sendSocketNotification("DONE_REPEAT", result)
+            })
+        }
 
-        // if (noti == "PREVIOUS") {
-        //     this.amazonmusic.previous((code, error, result) => {
-        //         this.sendSocketNotification("DONE_PREVIOUS", result)
-        //     })
-        // }
+
 
         // if (noti == "VOLUME") {
         //     this.amazonmusic.volume(payload, (code, error, result) => {
@@ -253,12 +286,6 @@ module.exports = NodeHelper.create({
         // if (noti == "TRANSFER") {
         //     this.amazonmusic.transferByName(payload, (code, error, result) => {
         //         this.sendSocketNotification("DONE_TRANSFER", result)
-        //     })
-        // }
-
-        // if (noti == "REPEAT") {
-        //     this.amazonmusic.repeat(payload, (code, error, result) => {
-        //         this.sendSocketNotification("DONE_REPEAT", result)
         //     })
         // }
 
