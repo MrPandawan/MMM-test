@@ -32,10 +32,16 @@ git pull
 
 ## Install
 ### 1. module install
+1. install node_module on AmazonMusic
 ```sh
 cd ~/MagicMirror/modules
 git clone https://github.com/MrPandawan/MMM-test MMM-AmazonMusic
 cd MMM-AmazonMusic
+npm install
+```
+2. install node_module on alexaApi resources
+```sh
+cd ~/MagicMirror/modules/MMM-AmazonMusic/resources
 npm install
 ```
 
