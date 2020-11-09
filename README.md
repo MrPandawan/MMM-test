@@ -54,13 +54,13 @@ cd ~/MagicMirror/modules/MMM-AmazonMusic
 node resources/initCookie.js localhost
 ```
 
-3. pening http://localhost:3457/ with your browser and complete form. 
+3. opening http://localhost:3457/ with your browser and complete form. 
    
 4. After this configure setup the file `amazonmusic.config.json` with amazon want to fetch by default its alexa.amazon.fr
 ```json
   {
       "AUTH_DOMAIN" : "YOUR LOCAL HOST DOMAIN",
-      "WEB_AMAZON": : "alexa.amazon.fr",
+      "WEB_AMAZON" : "alexa.amazon.fr",
       "AUTH_PATH" : "/callback",
       "AUTH_PORT" : "YOUR PORT",
       "SCOPE" : "user-read-private playlist-read-private streaming user-read-playback-state user-modify-playback-state",
@@ -71,8 +71,8 @@ node resources/initCookie.js localhost
 
 ```js
 var config = {
- modules: [
-		{
+  modules: [
+	  {
 			module: "MMM-AmazonMusic",
 			position: "bottom_left",
 			config: {
@@ -80,7 +80,20 @@ var config = {
 				// style: "mini", // "default" or "mini" available
 				// control: "hidden", //"default", "hidden" available
 				// updateInterval: 1000,
-		}
+      }
+    },
+    {
+			module: "MMM-AmazonMusic",
+			position: "bottom_left",
+			config: {
+				deviceName: "YourDeviceName",
+				// style: "mini", // "default" or "mini" available
+				// control: "hidden", //"default", "hidden" available
+				// updateInterval: 1000,
+      }   
+    }
+  ]
+}
 ```
 
 ## Control with notification
