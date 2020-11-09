@@ -97,9 +97,9 @@ var config = {
 ```
 
 ## Control with notification
-- `AMAZON_PLAY` : playing specific amazinuri.
+- `AMAZON_PLAY` : playing specific amazon music.
 ```
-  this.sendNotification("AMAZON_PLAY" + device name, "deviceId:3ENXjRhFPkH8YSH3qBXTfQ")
+  this.sendNotification("AMAZON_PLAY" + deviceName)
 ```
 The AMAZON_PLAY notification can also be used as `resume` feature of stopped/paused player, when used without payloads
 - `AMAZON_PAUSE` : pausing current playback.
