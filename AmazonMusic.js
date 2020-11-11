@@ -54,7 +54,6 @@ class AmazonMusic {
             authOptions.url += bodyParam
         }
 
-        console.log(authOptions.url);
         var req = () => {
             request(authOptions.url, (error, response, body) => {
                 if (error) {
