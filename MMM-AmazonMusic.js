@@ -116,6 +116,7 @@ Module.register("MMM-AmazonMusic", {
       if (this.currentPlayback.playerInfo.infoText.title !== current.playerInfo.infoText.title) {
         this.updateSongInfo(current)
         this.updatePlaying(current)
+        this.updateDevice(current);
       }
       if (this.currentPlayback.playerInfo.state !== current.playerInfo.state) {
         console.log("Change State");
