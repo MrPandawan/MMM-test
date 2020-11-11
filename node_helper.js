@@ -102,9 +102,9 @@ module.exports = NodeHelper.create({
             console.log("Findu current Playback")
             playing = true;
             let result = await this.updateAmazon(serial);
-            if (result.state){
+            if (result.state) {
                 this.sendSocketNotification("CURRENT_PLAYBACK_TRUE_" + config.deviceName, result)
-                throw new Error('no playing');
+                throw new Error('no playing')
             }
         } catch (e) {
             playing = false;
@@ -138,7 +138,7 @@ module.exports = NodeHelper.create({
                 this.sendSocketNotification("CURRENT_PLAYBACK_TRUE_" + config.deviceName, result);
                 setTimeout(() => {
                     this.updatePulse(config, serial)
-                }, 2000)
+                }, this.config.updateInterval);
             }
         })
     },
@@ -202,7 +202,7 @@ module.exports = NodeHelper.create({
                 this.amazonmusic.repeat(payload, (code, error, result) => {
                     if (result) {
                         console.log(result);
-                        this.sendSocketNotification("DONE_REPEAT_"+ spot.deviceName, payload.value)
+                        this.sendSocketNotification("DONE_REPEAT_" + spot.deviceName, payload.value)
                     }
                     else if (error) {
                         console.log(code, error, "ERROR ICI POUR REPEAT");
@@ -213,7 +213,7 @@ module.exports = NodeHelper.create({
                 this.amazonmusic.shuffle(payload, (code, error, result) => {
                     if (result) {
                         console.log(result);
-                        this.sendSocketNotification("DONE_SHUFFLE_"+ spot.deviceName, payload.value)
+                        this.sendSocketNotification("DONE_SHUFFLE_" + spot.deviceName, payload.value)
                     }
                     else if (error) {
                         console.log(code, error, "ERROR ICI POUR REPEAT");
