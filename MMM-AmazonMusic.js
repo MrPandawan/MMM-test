@@ -102,8 +102,8 @@ Module.register("MMM-AmazonMusic", {
   // Met a jour le dom avec les information de la playlist en cours
   updateCurrentPlayback: function (current) {
     console.log(current);
-    if (!current || current.state !== null) return
-    if (!this.currentPlayback || this.currentPlayback.state === null) {
+    if (!current) return
+    if (!this.currentPlayback) {
       this.updateSongInfo(current);
       this.updatePlaying(current);
       this.updateDevice();
@@ -451,14 +451,14 @@ Module.register("MMM-AmazonMusic", {
     backward.classList.add("AMAZONMUSIC_CONTROL_BACKWARD");
     backward.addEventListener("click", () => { this.clickBackward() })
     backward.innerHTML = `<span class="iconify" data-icon="mdi:skip-previous" data-inline="false"></span>`
-
+    
     // Create forward
     var forward = document.createElement("div")
     forward.id = "AMAZONMUSIC_CONTROL_FORWARD" + this.config.deviceName.replace(/\s+/g, '');
     forward.classList.add("AMAZONMUSIC_CONTROL_FORWARD");
     forward.innerHTML = `<span class="iconify" data-icon="mdi:skip-next" data-inline="false"></span>`
     forward.addEventListener("click", () => { this.clickForward() })
-
+    
     // Create Play
     var play = document.createElement("div")
     play.id = "AMAZONMUSIC_CONTROL_PLAY" + this.config.deviceName.replace(/\s+/g, '');
@@ -479,7 +479,7 @@ Module.register("MMM-AmazonMusic", {
 
     // To disable if not work
     // control.appendChild(shuffle)
-
+    
     control.appendChild(backward)
     control.appendChild(play)
     control.appendChild(forward)

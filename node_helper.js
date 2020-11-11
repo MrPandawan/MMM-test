@@ -24,7 +24,7 @@ module.exports = NodeHelper.create({
         }
         // Lancement de l'executable api pour recuperer les ressources
         this.lancerExect().catch(e => {
-            console.log('an error on init lancerExect');
+            console.log('an error on init lancerExect' + e);
         });
     },
 
@@ -102,7 +102,10 @@ module.exports = NodeHelper.create({
             console.log("Findu current Playback")
             playing = true;
             let result = await this.updateAmazon(serial);
-            this.sendSocketNotification("CURRENT_PLAYBACK_TRUE_" + config.deviceName, result)
+            if (result.state){
+                this.sendSocketNotification("CURRENT_PLAYBACK_TRUE_" + config.deviceName, result)
+                throw new Error('no playing');
+            }
         } catch (e) {
             playing = false;
             console.log("[AMAZON] This Amazon is not playing:", config.deviceName)
