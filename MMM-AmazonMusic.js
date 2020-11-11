@@ -110,10 +110,6 @@ Module.register("MMM-AmazonMusic", {
       this.updateProgress(current)
     } else {
       if(this.currentPlayback.playerInfo.infoText === null){
-        this.sendSocketNotification("AMAZON_CURRENT_PLAYBACK_" + this.config.deviceName, {
-          device: this.config.deviceName,
-          serial: this.config.deviceSerial
-        });
         this.currentPlayback = current
         return;
       };
