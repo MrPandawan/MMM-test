@@ -102,23 +102,26 @@ Module.register("MMM-AmazonMusic", {
   // Met a jour le dom avec les information de la playlist en cours
   updateCurrentPlayback: function (current) {
     console.log(current);
-    if (!current) return
-    if (!this.currentPlayback) {
-      this.updateSongInfo(current);
-      this.updatePlaying(current);
-      this.updateDevice();
-      this.updateProgress(current)
-    } else {
-      if (this.currentPlayback.playerInfo.infoText.title !== current.playerInfo.infoText.title) {
-        this.updateSongInfo(current)
-        this.updatePlaying(current)
-      }
-      if (this.currentPlayback.playerInfo.state !== current.playerInfo.state) {
-        console.log("Change State");
-        this.updatePlaying(current)
-      }
-      if (this.currentPlayback.playerInfo.progress.mediaProgress !== current.playerInfo.progress.mediaProgress) {
+    console.log(this.config.deviceName);
+    if (!current || current.playerInfo.state === null) {return};
+    if (current.playerInfo.state !== null) {
+      if (!this.currentPlayback) {
+        this.updateSongInfo(current);
+        this.updatePlaying(current);
+        this.updateDevice();
         this.updateProgress(current)
+      } else {
+        if (this.currentPlayback.playerInfo.infoText.title !== current.playerInfo.infoText.title) {
+          this.updateSongInfo(current)
+          this.updatePlaying(current)
+        }
+        else if (this.currentPlayback.playerInfo.state !== current.playerInfo.state) {
+          console.log("Change State");
+          this.updatePlaying(current)
+        }
+        if (this.currentPlayback.playerInfo.progress.mediaProgress !== current.playerInfo.progress.mediaProgress) {
+          this.updateProgress(current)
+        }
       }
     }
 
@@ -451,14 +454,14 @@ Module.register("MMM-AmazonMusic", {
     backward.classList.add("AMAZONMUSIC_CONTROL_BACKWARD");
     backward.addEventListener("click", () => { this.clickBackward() })
     backward.innerHTML = `<span class="iconify" data-icon="mdi:skip-previous" data-inline="false"></span>`
-    
+
     // Create forward
     var forward = document.createElement("div")
     forward.id = "AMAZONMUSIC_CONTROL_FORWARD" + this.config.deviceName.replace(/\s+/g, '');
     forward.classList.add("AMAZONMUSIC_CONTROL_FORWARD");
     forward.innerHTML = `<span class="iconify" data-icon="mdi:skip-next" data-inline="false"></span>`
     forward.addEventListener("click", () => { this.clickForward() })
-    
+
     // Create Play
     var play = document.createElement("div")
     play.id = "AMAZONMUSIC_CONTROL_PLAY" + this.config.deviceName.replace(/\s+/g, '');
@@ -479,11 +482,11 @@ Module.register("MMM-AmazonMusic", {
 
     // To disable if not work
     // control.appendChild(shuffle)
-    
+
     control.appendChild(backward)
     control.appendChild(play)
     control.appendChild(forward)
-    
+
     // To disable if not work
     // control.appendChild(repeat)
 
