@@ -3,6 +3,8 @@
 //
 
 var i = 0;
+var repeat = false;
+var shuffle = false;
 Module.register("MMM-AmazonMusic", {
   defaults: {
     deviceName: null,
@@ -11,22 +13,8 @@ Module.register("MMM-AmazonMusic", {
     updateInterval: 1000,
     allowDevices: [],
     iconify: "https://code.iconify.design/1/1.0.0-rc7/iconify.min.js",
-    //iconify: null,
-    //When you use this module with `MMM-CalendarExt` or any other `iconify` used modules together, Set this null.
     deviceSerial: null,
     onStart: null,
-    //If you want to play something on start; set like this.
-    /* remove all from it
-    onStart: {
-      deviceName: "Web Player (Chrome)", //if null, current(last) activated device will be.
-      spotifyUri : "spotify:playlist:37i9dQZF1DX9EM98aZosoy", //when search is set, sportifyUri will be ignored.
-      search: {
-        type: "artist, track", // `artist`, track`, `album`, `playlist` available
-        keyword: "michael+jackson",
-        random:true,
-      }
-    }
-    */
   },
 
   // for gets scripts if exist
@@ -54,39 +42,6 @@ Module.register("MMM-AmazonMusic", {
     if (noti === "DOM_OBJECTS_CREATED") {
       this.sendSocketNotification("INIT", this.config)
     }
-    // all other notif but never use for moment its for push dom click
-    switch (noti) {
-      case "AMAZONMUSIC_SEARCH":
-        this.sendSocketNotification("SEARCH_AND_PLAY", pl)
-        break
-      case "AMAZONMUSIC_PLAY":
-        this.sendSocketNotification("PLAY", payload)
-        break
-      case "AMAZONMUSIC_PAUSE":
-        this.sendSocketNotification("PAUSE")
-        break
-      case "AMAZONMUSIC_NEXT":
-        this.sendSocketNotification("NEXT")
-        break
-      case "AMAZONMUSIC_PREVIOUS":
-        this.sendSocketNotification("PREVIOUS")
-        break
-      case "AMAZONMUSIC_VOLUME":
-        this.sendSocketNotification("VOLUME", payload)
-        break
-      case "AMAZONMUSIC_TRANSFER":
-        this.sendSocketNotification("TRANSFER", payload)
-        break
-      case "AMAZONMUSIC_SHUFFLE":
-        this.clickShuffle()
-        break
-      case "AMAZONMUSIC_REPEAT":
-        this.clickRepeat()
-        break
-      case "AMAZONMUSIC_TOGGLE":
-        this.clickPlay()
-        break
-    }
   },
 
   // Get le device online and parse function
@@ -112,9 +67,6 @@ Module.register("MMM-AmazonMusic", {
   // Socket NOTI from Node Helper
   socketNotificationReceived: function (noti, payload) {
     switch (noti) {
-      // never use
-      case "INITIALIZED":
-        break
       // get current device and parse response serveur
       case "CURRENT_DEVICES_" + this.config.deviceName:
         this.checkDevicesOnline(payload);
@@ -122,23 +74,32 @@ Module.register("MMM-AmazonMusic", {
       // play the current 
       case "CURRENT_PLAYBACK_TRUE_" + this.config.deviceName:
         let playerInfo = JSON.parse(payload);
-
         this.updateCurrentPlayback(playerInfo);
         break;
       case "CURRENT_PLAYBACK_FAIL_" + this.config.deviceName:
-        console.log("NOT PLAYBACK")
-      // this.updateNoPlayback()
+        this.updateNoPlayback()
+        break;
+      // Button repeat
+      case "DONE_REPEAT_" + this.config.deviceName:
+        this.updateRepeat(payload)
+        break;
+      case "DONE_SHUFFLE_" + this.config.deviceName:
+        this.updateShuffle(payload)
+        break;
     }
+    // dont use a verifier
     if (noti.search("DONE_") > -1) {
       this.sendNotification(noti)
     }
   },
 
+  // Retire le cover et le player quand aucune musique n'est joue
   updateNoPlayback: function () {
     var dom = document.getElementById("AMAZONMUSIC" + this.config.deviceName.replace(/\s+/g, ''))
     dom.classList.add("inactive")
   },
 
+  // Met a jour le dom avec les information de la playlist en cours
   updateCurrentPlayback: function (current) {
     console.log(current);
     if (!current) return
@@ -146,27 +107,16 @@ Module.register("MMM-AmazonMusic", {
       this.updateSongInfo(current);
       this.updatePlaying(current);
       this.updateDevice();
-      // this.updateShuffle(current)
-      // this.updateRepeat(current)
       this.updateProgress(current)
     } else {
       if (this.currentPlayback.playerInfo.infoText.title !== current.playerInfo.infoText.title) {
         this.updateSongInfo(current)
         this.updatePlaying(current)
       }
-      //     if (this.currentPlayback.item.id !== current.item.id) {
-      //       this.updateSongInfo(current)
-      //     }
       if (this.currentPlayback.playerInfo.state !== current.playerInfo.state) {
         console.log("Change State");
         this.updatePlaying(current)
       }
-      //     if (this.currentPlayback.repeat_state !== current.repeat_state) {
-      //       this.updateRepeat(current)
-      //     }
-      //     if (this.currentPlayback.shuffle_state !== current.shuffle_state) {
-      //       this.updateShuffle(current)
-      //     }
       if (this.currentPlayback.playerInfo.progress.mediaProgress !== current.playerInfo.progress.mediaProgress) {
         this.updateProgress(current)
       }
@@ -273,12 +223,12 @@ Module.register("MMM-AmazonMusic", {
   },
 
   //**********************  CONTROLS NOT  USE **********************//
-  updateShuffle: function (newPlayback) {
-    var shuffle = document.getElementById("AMAZONMUSIC_CONTROL_SHUFFLE")
+  updateShuffle: function (booo) {
+    var shuffle = document.getElementById("AMAZONMUSIC_CONTROL_SHUFFLE" + this.config.deviceName.replace(/\s+/g, ''));
     var si = document.createElement("span")
     si.className = "iconify"
     si.dataset.icon = "mdi:shuffle"
-    if (newPlayback.shuffle_state) {
+    if (booo) {
       shuffle.className = "on"
       si.dataset.icon = "mdi:shuffle"
     } else {
@@ -289,38 +239,44 @@ Module.register("MMM-AmazonMusic", {
     shuffle.appendChild(si)
   },
 
-  updateRepeat: function (newPlayback) {
-    var repeat = document.getElementById("AMAZONMUSIC_CONTROL_REPEAT")
+  updateRepeat: function (booo) {
+    var repeat = document.getElementById("AMAZONMUSIC_CONTROL_REPEAT" + this.config.deviceName.replace(/\s+/g, ''));
     var ri = document.createElement("span")
     ri.className = "iconify"
     ri.dataset.inline = "false"
-    repeat.className = newPlayback.repeat_state
+    if (booo) {
+      repeat.className = 'true' + this.config.deviceName;
+    } else {
+      repeat.className = 'false' + this.config.deviceName;
+    }
     const ris = {
       "off": "mdi:repeat-off",
       "track": "mdi:repeat-once",
       "context": "mdi:repeat"
     }
-    ri.dataset.icon = ris[newPlayback.repeat_state]
+    ri.dataset.icon = ris[booo ? 'context' : 'off'];
     repeat.innerHTML = ""
     repeat.appendChild(ri)
   },
 
-  clickRepeat: function () {
-    // var c = this.currentPlayback.repeat_state
-    // var n = ""
-    // if (c === "off") n = "track"
-    // if (c === "track") n = "context"
-    // if (c === "context") n = "off"
-    // this.sendSocketNotification("REPEAT", n)
-  },
 
-  clickShuffle: function () {
-    // this.sendSocketNotification("SHUFFLE", !this.currentPlayback.shuffle_state)
-  },
+
 
   /*****************   END CONTROL NOT USE *****************/
 
   /********************** CONTROLS BUTTON  *******************/
+
+  clickRepeat: function () {
+    repeat = !repeat;
+    console.log(repeat);
+    this.sendSocketNotification("REPEAT_" + this.config.deviceName, { device: this.config.deviceSerial, value: repeat })
+  },
+
+  clickShuffle: function () {
+    shuffle = !shuffle
+    this.sendSocketNotification("SHUFFLE_" + this.config.deviceName, { device: this.config.deviceSerial, value: shuffle })
+  },
+
 
   clickPlay: function () {
     if (this.currentPlayback.playerInfo.state === "PLAYING") {
@@ -464,6 +420,7 @@ Module.register("MMM-AmazonMusic", {
     control.id = "AMAZONMUSIC_CONTROL" + this.config.deviceName.replace(/\s+/g, '');
     control.classList.add("AMAZONMUSIC_CONTROL");
 
+    // Create shuffle
     var shuffle = document.createElement("div")
     shuffle.id = "AMAZONMUSIC_CONTROL_SHUFFLE" + this.config.deviceName.replace(/\s+/g, '');
     shuffle.classList.add("AMAZONMUSIC_CONTROL_SHUFFLE");
@@ -475,10 +432,11 @@ Module.register("MMM-AmazonMusic", {
     si.dataset.icon = "mdi:shuffle"
     si.dataset.inline = "false"
     shuffle.appendChild(si)
+
+    // Create Repeat
     var repeat = document.createElement("div")
     repeat.id = "AMAZONMUSIC_CONTROL_REPEAT" + this.config.deviceName.replace(/\s+/g, '');
     repeat.classList.add("AMAZONMUSIC_CONTROL_REPEAT");
-
     repeat.addEventListener("click", () => { this.clickRepeat() })
     var ri = document.createElement("span")
     ri.className = "iconify"
@@ -486,22 +444,25 @@ Module.register("MMM-AmazonMusic", {
     repeat.className = "off"
     ri.dataset.icon = "mdi:repeat-off"
     repeat.appendChild(ri)
+
+    // Create backward
     var backward = document.createElement("div")
     backward.id = "AMAZONMUSIC_CONTROL_BACKWARD" + this.config.deviceName.replace(/\s+/g, '');
     backward.classList.add("AMAZONMUSIC_CONTROL_BACKWARD");
-
     backward.addEventListener("click", () => { this.clickBackward() })
     backward.innerHTML = `<span class="iconify" data-icon="mdi:skip-previous" data-inline="false"></span>`
+    
+    // Create forward
     var forward = document.createElement("div")
     forward.id = "AMAZONMUSIC_CONTROL_FORWARD" + this.config.deviceName.replace(/\s+/g, '');
     forward.classList.add("AMAZONMUSIC_CONTROL_FORWARD");
-
     forward.innerHTML = `<span class="iconify" data-icon="mdi:skip-next" data-inline="false"></span>`
     forward.addEventListener("click", () => { this.clickForward() })
+    
+    // Create Play
     var play = document.createElement("div")
     play.id = "AMAZONMUSIC_CONTROL_PLAY" + this.config.deviceName.replace(/\s+/g, '');
     play.classList.add("AMAZONMUSIC_CONTROL_PLAY");
-
     play.addEventListener("click", () => { this.clickPlay() })
     var pi = document.createElement("span")
     pi.className = "iconify"
@@ -515,11 +476,14 @@ Module.register("MMM-AmazonMusic", {
     info.appendChild(device)
     misc.appendChild(info)
     misc.appendChild(progress)
-    control.appendChild(shuffle)
+
+    // To disable if not work
+    // control.appendChild(shuffle)
+    // control.appendChild(repeat)
+    
     control.appendChild(backward)
     control.appendChild(play)
     control.appendChild(forward)
-    control.appendChild(repeat)
     misc.appendChild(control)
     fore.appendChild(misc)
 

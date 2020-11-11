@@ -34,16 +34,13 @@ class AmazonMusic {
         this.state = Date.now()
     }
 
-    authFlow(afterCallback = () => {
-    }, error = () => {
-    }) {
-    }
-
-    /***** Alexa.Command *****
-        URL: /command?device=?&command=?
-        device - String - name of the device
-        command - String - command : pause|play|next|prev|fwd|rwd|shuffle|repeat
-    */
+    /**
+     * Alexa.Command *****
+     * URL: /command?device=?&command=?
+     * device - String - name or ID of the device
+     * command - String - command : pause|play|next|prev|fwd|rwd|shuffle|repeat|vol:<0-100>
+     **/
+    // Commande de requete sur Amazon Api
     doRequest(api, type, qsParam, bodyParam, cb) {
         var authOptions = {
             url: this.config.AUTH_DOMAIN + this.config.AUTH_PORT + api,
@@ -56,7 +53,7 @@ class AmazonMusic {
         if (bodyParam) {
             authOptions.url += bodyParam
         }
-       
+
         console.log(authOptions.url);
         var req = () => {
             request(authOptions.url, (error, response, body) => {
@@ -66,7 +63,6 @@ class AmazonMusic {
                 }
                 else if (cb) {
                     if (response) {
-                        console.log(body)
                         cb(response.statusCode, error, body)
                     } else {
                         console.log(`[AMAZONMUSIC] Invalid response`)
@@ -78,80 +74,50 @@ class AmazonMusic {
         req()
     }
 
-    getMediaCurrent(params, cb) {
-        this.doRequest("/media?device=", "GET", null, params, cb);
-    }
+    // Recupere les informations de la musique en cours sur le device
     getCurrentPlayback(params, cb) {
         this.doRequest("/playerinfo?device=", "GET", null, params, cb)
     }
 
+    // Recupere l'ensemble des devices amazon
     getDevices(cb) {
         this.doRequest("/devices", "GET", null, null, cb)
     }
 
+    // Commande pour lecture sur le player
     // command?device=  ae816d7d455646f6801e5750ad01065c  &command=play
     play(param, cb) {
         this.doRequest("/command?device=", "POST", null, param + '&command=play', cb)
     }
 
+    // Commande pour pause sur le player
     // command?device=  ae816d7d455646f6801e5750ad01065c  &command=pause
     pause(param, cb) {
         this.doRequest("/command?device=", "POST", null, param + '&command=pause', cb)
     }
 
+    // Commande pour next sur la prochaine musique
     // command?device=  ae816d7d455646f6801e5750ad01065c  &command=next
     next(param, cb) {
         this.doRequest("/command?device=", "POST", null, param + '&command=next', cb)
     }
 
+    // Commande pour jouer la musique precedente
     // command?device=  ae816d7d455646f6801e5750ad01065c  &command=prev
     previous(param, cb) {
         this.doRequest("/command?device=", "POST", null, param + '&command=previous', cb)
     }
 
-    // command?device=  ae816d7d455646f6801e5750ad01065c  &command=next
+    // Command pour repeat la musique en cours
+    // command?device=  ae816d7d455646f6801e5750ad01065c  &command=repeat
     repeat(param, cb) {
-        this.doRequest("/command?device=", "POST", null, param + '&command=repeat', cb)
+        this.doRequest("/command?device=", "POST", null, param.device + '&command=repeat&value=' + param.value, cb)
     }
 
-    search(param, cb) {
-        param.limit = 50
-        this.doRequest("/v1/search", "GET", param, null, cb)
-    }
-
-    transfer(req, cb) {
-        if (req.device_ids.length > 1) {
-            req.device_ids = [req.device_ids[0]]
-        }
-        this.doRequest("/v1/me/player", "PUT", null, req, cb)
-    }
-
-    transferByName(device_name, cb) {
-        this.getDevices((code, error, result) => {
-            if (code == 200) {
-                var devices = result.devices
-                for (var i = 0; i < devices.length; i++) {
-                    if (devices[i].name == device_name) {
-                        this.transfer({ device_ids: [devices[i].id] }, cb)
-                        return
-                    }
-                }
-            } else {
-                cb(code, error, result)
-            }
-        })
-    }
-
-    volume(volume = 50, cb) {
-        this.doRequest("/v1/me/player/volume", "PUT", { volume_percent: volume }, null, cb)
-    }
-
-    shuffle(state, cb) {
-        this.doRequest("/v1/me/player/shuffle", "PUT", { state: state }, null, cb)
-    }
-
-    replay(cb) {
-        this.doRequest("/v1/me/player/seek", "PUT", { position_ms: 0 }, null, cb)
+    // Command pour shuffle la musique en cours
+    // command?device=  ae816d7d455646f6801e5750ad01065c  &command=shuffle
+    shuffle(param, cb) {
+        this.doRequest("/command?device=", "POST", null, param.device + '&command=shuffle&value=' + param.value, cb)
     }
 }
 

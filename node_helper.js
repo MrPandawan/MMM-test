@@ -199,11 +199,22 @@ module.exports = NodeHelper.create({
                 this.amazonmusic.repeat(payload, (code, error, result) => {
                     if (result) {
                         console.log(result);
+                        this.sendSocketNotification("DONE_REPEAT_"+ spot.deviceName, payload.value)
                     }
                     else if (error) {
                         console.log(code, error, "ERROR ICI POUR REPEAT");
                     }
-                    this.sendSocketNotification("DONE_REPEAT", result)
+                })
+            }
+            if (noti == "SHUFFLE_" + spot.deviceName) {
+                this.amazonmusic.shuffle(payload, (code, error, result) => {
+                    if (result) {
+                        console.log(result);
+                        this.sendSocketNotification("DONE_SHUFFLE_"+ spot.deviceName, payload.value)
+                    }
+                    else if (error) {
+                        console.log(code, error, "ERROR ICI POUR REPEAT");
+                    }
                 })
             }
         });
