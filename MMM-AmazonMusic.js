@@ -106,17 +106,12 @@ Module.register("MMM-AmazonMusic", {
     if (!this.currentPlayback) {
       this.updateSongInfo(current);
       this.updatePlaying(current);
-      this.updateDevice(current);
+      this.updateDevice();
       this.updateProgress(current)
     } else {
-      if(this.currentPlayback.playerInfo.infoText === null){
-        this.currentPlayback = current
-        return;
-      };
       if (this.currentPlayback.playerInfo.infoText.title !== current.playerInfo.infoText.title) {
         this.updateSongInfo(current)
         this.updatePlaying(current)
-        this.updateDevice(current);
       }
       if (this.currentPlayback.playerInfo.state !== current.playerInfo.state) {
         console.log("Change State");
@@ -137,7 +132,6 @@ Module.register("MMM-AmazonMusic", {
     curbar = document.getElementById("AMAZONMUSIC_PROGRESS_CURRENT" + this.config.deviceName.replace(/\s+/g, '')),
     now = document.getElementById("AMAZONMUSIC_PROGRESS_BAR_NOW" + this.config.deviceName.replace(/\s+/g, ''))
   ) {
-    if (!current.playerInfo || current.playerInfo.mainArt == null) return
     var msToTime = (duration) => {
       var ret = ""
       var d = Number(duration)
@@ -165,7 +159,7 @@ Module.register("MMM-AmazonMusic", {
   // Songs infos
   updateSongInfo: function (newPlayback) {
     if (!newPlayback) return
-    if (!newPlayback.playerInfo || newPlayback.playerInfo.mainArt == null) return
+    if (!newPlayback.playerInfo) return
     var sDom = document.getElementById("AMAZONMUSIC" + this.config.deviceName.replace(/\s+/g, ''));
     console.log(sDom)
     sDom.classList.remove("noPlayback")
@@ -198,15 +192,13 @@ Module.register("MMM-AmazonMusic", {
   },
 
   // update device
-  updateDevice: function (current) {
-    if (!current.playerInfo || current.playerInfo.mainArt == null) return
+  updateDevice: function () {
     var device = document.getElementById("AMAZONMUSIC_DEVICE" + this.config.deviceName.replace(/\s+/g, ''))
     var content = device.querySelector(".text");
     content.textContent = this.config.deviceName;
   },
 
   updatePlaying: function (newPlayback) {
-    if (!newPlayback.playerInfo || newPlayback.playerInfo.mainArt == null) return
     var s = document.getElementById("AMAZONMUSIC" + this.config.deviceName.replace(/\s+/g, ''))
     var p = document.getElementById("AMAZONMUSIC_CONTROL_PLAY" + this.config.deviceName.replace(/\s+/g, ''))
     var pi = document.createElement("span")
@@ -459,14 +451,14 @@ Module.register("MMM-AmazonMusic", {
     backward.classList.add("AMAZONMUSIC_CONTROL_BACKWARD");
     backward.addEventListener("click", () => { this.clickBackward() })
     backward.innerHTML = `<span class="iconify" data-icon="mdi:skip-previous" data-inline="false"></span>`
-
+    
     // Create forward
     var forward = document.createElement("div")
     forward.id = "AMAZONMUSIC_CONTROL_FORWARD" + this.config.deviceName.replace(/\s+/g, '');
     forward.classList.add("AMAZONMUSIC_CONTROL_FORWARD");
     forward.innerHTML = `<span class="iconify" data-icon="mdi:skip-next" data-inline="false"></span>`
     forward.addEventListener("click", () => { this.clickForward() })
-
+    
     // Create Play
     var play = document.createElement("div")
     play.id = "AMAZONMUSIC_CONTROL_PLAY" + this.config.deviceName.replace(/\s+/g, '');
@@ -487,11 +479,11 @@ Module.register("MMM-AmazonMusic", {
 
     // To disable if not work
     // control.appendChild(shuffle)
-
+    
     control.appendChild(backward)
     control.appendChild(play)
     control.appendChild(forward)
-
+    
     // To disable if not work
     // control.appendChild(repeat)
 
