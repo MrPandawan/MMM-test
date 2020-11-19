@@ -54,7 +54,6 @@ module.exports = NodeHelper.create({
 
     // Find all devices
     findAllDevices: function () {
-        console.log(this.amazonmusic);
         return new Promise((resolve, reject) => {
             this.amazonmusic.getDevices((code, error, result) => {
                 if (code !== 200 || typeof result === "undefined") {
@@ -68,18 +67,22 @@ module.exports = NodeHelper.create({
 
     // Find the current Amazon Play on device name
     updateDevicesConnects: async function (config) {
-        try {
-            let result = await this.findAllDevices();
-            this.sendSocketNotification("CURRENT_DEVICES_" + config.deviceName, result);
-            return result
-        } catch (e) {
-            console.log('Dont get any device found:' + e, config.deviceName);
-            console.log("internet connexion failed OR SERVER amazon down");
-            setTimeout(() => {
-                this.updateDevicesConnects(config);
-            }, config.updateInterval);
-            throw new Error(e);
-        }
+        this.config.forEach(spot => {
+            if (config.deviceName === spot.deviceName) {
+                try {
+                    let result = await this.findAllDevices();
+                    this.sendSocketNotification("CURRENT_DEVICES_" + config.deviceName, result);
+                    return result
+                } catch (e) {
+                    console.log('Dont get any device found:' + e, config.deviceName);
+                    console.log("internet connexion failed OR SERVER amazon down");
+                    setTimeout(() => {
+                        this.updateDevicesConnects(config);
+                    }, config.updateInterval);
+                    throw new Error(e);
+                }
+            }
+        });
     },
 
     // Get from amazon music playing and return result
@@ -97,6 +100,7 @@ module.exports = NodeHelper.create({
     },
 
     findCurrentPlayBack: async function (config, serial) {
+
         let playing = false;
         try {
             console.log("Findu current Playback")
