@@ -120,4 +120,5 @@ class AmazonMusic {
     }
 }
 
+
 module.exports = AmazonMusic

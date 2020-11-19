@@ -143,6 +143,7 @@ module.exports = NodeHelper.create({
         })
     },
 
+
     // Receveild all notification
     socketNotificationReceived: function (noti, payload) {
         // when is initalised

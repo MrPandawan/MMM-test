@@ -26,6 +26,7 @@ Module.register("MMM-AmazonMusic", {
     return r
   },
 
+
   // get styles if exist
   getStyles: function () {
     return ["MMM-AmazonMusic.css"]
@@ -103,7 +104,7 @@ Module.register("MMM-AmazonMusic", {
   updateCurrentPlayback: function (current) {
     console.log(current);
     console.log(this.config.deviceName);
-    if (!current || current.playerInfo.state === null) {return};
+    if (!current || current.playerInfo.state === null) { return };
     if (current.playerInfo.state !== null) {
       if (!this.currentPlayback) {
         this.updateSongInfo(current);
