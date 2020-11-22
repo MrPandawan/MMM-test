@@ -11,6 +11,8 @@ const querystring = require("querystring")
 const opn = require("open")
 const express = require("express")
 const app = express()
+var colorCyan = '\x1b[36m%s\x1b[0m';
+var colorRed = '\x1b[31m%s\x1b[0m';
 
 class AmazonMusic {
     constructor(config = null) {
@@ -57,14 +59,14 @@ class AmazonMusic {
         var req = () => {
             request(authOptions.url, (error, response, body) => {
                 if (error) {
-                    console.log(`[AMAZONMUSIC] API Request fail on :`, api)
+                    console.error(colorRed ,`======= [AMAZONMUSIC.JS] API Request fail on :`, api + ' =======')
                     cb(null, error, body)
                 }
                 else if (cb) {
                     if (response) {
                         cb(response.statusCode, error, body)
                     } else {
-                        console.log(`[AMAZONMUSIC] Invalid response`)
+                        console.error(colorRed, `======= [AMAZONMUSIC.JS] Invalid response =======`)
                         cb(response.statusCode, error, body)
                     }
                 }

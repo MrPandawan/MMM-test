@@ -8,8 +8,10 @@ const exec = util.promisify(require('child_process').exec);
 const fs = require("fs")
 const path = require("path")
 const AmazonMusic = require("./AmazonMusic.js")
-var NodeHelper = require("node_helper")
+var NodeHelper = require("node_helper");
 
+var colorCyan = '\x1b[36m%s\x1b[0m';
+var colorRed = '\x1b[31m%s\x1b[0m';
 // MODULES
 module.exports = NodeHelper.create({
     start: function () {
@@ -24,7 +26,8 @@ module.exports = NodeHelper.create({
         }
         // Lancement de l'executable api pour recuperer les ressources
         this.lancerExect().catch(e => {
-            console.log('an error on init lancerExect' + e);
+            console.log(colorRed, '========== An error on init lancerExect : ==========');
+            console.error(e);
         });
     },
 
@@ -43,13 +46,11 @@ module.exports = NodeHelper.create({
 
     // Init after DOM_OBJECTS_CREATED
     // Define config HERE
-    initAfterLoading: function (config) {
+    initAfterLoading: async function (config) {
         this.config.push(config)
-        this.updateDevicesConnects(config).then(() => {
-            console.log('[MMM-AmazonMusic] Starting');
-        }).catch(e => {
-            console.log('[MMM-AmazonMusic] Error', e);
-        })
+        await this.updateDevicesConnects(config).then(() => {
+            console.log(colorCyan, '========== [MMM-AmazonMusic] Starting On ' + config.deviceName + ' ==========');
+        });
     },
 
     // Find all devices
@@ -67,19 +68,16 @@ module.exports = NodeHelper.create({
 
     // Find the current Amazon Play on device name
     updateDevicesConnects: async function (config) {
-        
-        try {
-            let result = await this.findAllDevices();
+        await this.findAllDevices().then(result => {
             this.sendSocketNotification("CURRENT_DEVICES_" + config.deviceName, result);
-            return result
-        } catch (e) {
-            console.log('Dont get any device found:' + e, config.deviceName);
-            console.log("internet connexion failed OR SERVER amazon down");
+            return Promise.resolve(result)
+        }).catch(e => {
+            console.error(colorRed, 'Connexion refuse : ' + e, ' pour le device  :' + config.deviceName);
+            console.error(colorRed, "internet connexion failed OR SERVER amazon down retry to connect");
             setTimeout(() => {
                 this.updateDevicesConnects(config);
-            }, config.updateInterval);
-            throw new Error(e);
-        }
+            }, 3000);
+        });
     },
 
     // Get from amazon music playing and return result
@@ -97,10 +95,9 @@ module.exports = NodeHelper.create({
     },
 
     findCurrentPlayBack: async function (config, serial) {
-        
+
         let playing = false;
         try {
-            console.log("Findu current Playback")
             playing = true;
             let result = await this.updateAmazon(serial);
             if (result.state) {
@@ -133,7 +130,6 @@ module.exports = NodeHelper.create({
         }
         this.amazonmusic.getCurrentPlayback(serial, (code, error, result) => {
             if (result === "undefined" || code !== 200) {
-                this.updateDevicesConnects(config);
                 this.sendSocketNotification("CURRENT_PLAYBACK_FAIL_" + config.deviceName);
             } else {
                 this.sendSocketNotification("CURRENT_PLAYBACK_TRUE_" + config.deviceName, result);
@@ -149,7 +145,6 @@ module.exports = NodeHelper.create({
     socketNotificationReceived: function (noti, payload) {
         // when is initalised
         if (noti == "INIT") {
-            console.log("INIT ICI -------->")
             this.initAfterLoading(payload);
         }
         this.config.forEach(spot => {
@@ -159,66 +154,60 @@ module.exports = NodeHelper.create({
             if (noti == "PAUSE_" + spot.deviceName) {
                 this.amazonmusic.pause(payload, (code, error, result) => {
                     if (result) {
-                        console.log(result);
+                        this.sendSocketNotification("DONE_PAUSE", result)
                     }
                     else if (error) {
-                        console.log(code, error, "ERROR ICI POUR PAUSE");
+                        console.error(code, error, "Erreur sur la commande pause");
                     }
-                    this.sendSocketNotification("DONE_PAUSE", result)
                 })
             }
             if (noti == "PLAY_" + spot.deviceName) {
                 this.amazonmusic.play(payload, (code, error, result) => {
                     if (result) {
-                        console.log(result);
+                        this.sendSocketNotification("DONE_PLAY", result)
                     }
                     else if (error) {
-                        console.log(code, error, "ERROR ICI POUR PLAY");
+                        console.error(code, error, "Erreur sur la commande play");
                     }
-                    this.sendSocketNotification("DONE_PLAY", result)
                 })
             }
             if (noti == "NEXT_" + spot.deviceName) {
                 this.amazonmusic.next(payload, (code, error, result) => {
                     if (result) {
-                        console.log(result);
+                        this.sendSocketNotification("DONE_NEXT", result)
                     }
                     else if (error) {
-                        console.log(code, error, "ERROR ICI POUR NEXT");
+                        console.error(code, error, "Erreur sur la commande next");
                     }
-                    this.sendSocketNotification("DONE_NEXT", result)
                 })
             }
             if (noti == "PREVIOUS_" + spot.deviceName) {
                 this.amazonmusic.previous(payload, (code, error, result) => {
                     if (result) {
-                        console.log(result);
+                        this.sendSocketNotification("DONE_PREV", result)
                     }
                     else if (error) {
-                        console.log(code, error, "ERROR ICI POUR PREV");
+                        console.error(code, error, "Erreur sur la commande previous");
                     }
-                    this.sendSocketNotification("DONE_PREV", result)
                 })
             }
             if (noti == "REPEAT_" + spot.deviceName) {
                 this.amazonmusic.repeat(payload, (code, error, result) => {
                     if (result) {
-                        console.log(result);
                         this.sendSocketNotification("DONE_REPEAT_" + spot.deviceName, payload.value)
                     }
                     else if (error) {
-                        console.log(code, error, "ERROR ICI POUR REPEAT");
+                        console.error(code, error, "Erreur sur la commande repeat");
                     }
                 })
             }
             if (noti == "SHUFFLE_" + spot.deviceName) {
                 this.amazonmusic.shuffle(payload, (code, error, result) => {
                     if (result) {
-                        console.log(result);
                         this.sendSocketNotification("DONE_SHUFFLE_" + spot.deviceName, payload.value)
                     }
                     else if (error) {
-                        console.log(code, error, "ERROR ICI POUR REPEAT");
+                        console.error(code, error, "Erreur sur la commande repetition");
                     }
                 })
             }
