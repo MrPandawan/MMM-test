@@ -122,7 +122,9 @@ Module.register("MMM-AmazonMusic", {
           this.updateSongInfo(current)
           this.updatePlaying(current)
         }
-        if (this.currentPlayback.playerInfo.progress.mediaProgress !== current.playerInfo.progress.mediaProgress) {
+        if ((this.currentPlayback.playerInfo.progress.mediaProgress
+          !== current.playerInfo.progress.mediaProgress)
+          && this.currentPlayback.playerInfo.progress.mediaProgress <= (current.playerInfo.progress.mediaProgress)) {
           this.updateProgress(current)
         }
       }
