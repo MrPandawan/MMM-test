@@ -112,12 +112,14 @@ Module.register("MMM-AmazonMusic", {
         this.updateDevice();
         this.updateProgress(current)
       } else {
-        if (this.currentPlayback.playerInfo.infoText.title !== current.playerInfo.infoText.title) {
-          this.updateSongInfo(current)
-          this.updatePlaying(current)
-        }
-        else if (this.currentPlayback.playerInfo.state !== current.playerInfo.state) {
+        if (this.currentPlayback.playerInfo.state !== current.playerInfo.state) {
           console.log("Change State");
+          this.updatePlaying(current);
+          this.currentPlayback = current;
+          return;
+        }
+        else if (this.currentPlayback.playerInfo.infoText.title !== current.playerInfo.infoText.title) {
+          this.updateSongInfo(current)
           this.updatePlaying(current)
         }
         if (this.currentPlayback.playerInfo.progress.mediaProgress !== current.playerInfo.progress.mediaProgress) {
