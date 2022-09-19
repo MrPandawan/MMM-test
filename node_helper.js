@@ -47,6 +47,7 @@ module.exports = NodeHelper.create({
     // Init after DOM_OBJECTS_CREATED
     // Define config HERE
     initAfterLoading: async function (config) {
+        console.log(config)
         this.config.push(config)
         await this.updateDevicesConnects(config).then(() => {
             console.log(colorCyan, '========== [MMM-AmazonMusic] Starting On ' + config.deviceName + ' ==========');
@@ -102,7 +103,7 @@ module.exports = NodeHelper.create({
             let result = await this.updateAmazon(serial);
             if (result.state) {
                 this.sendSocketNotification("CURRENT_PLAYBACK_TRUE_" + config.deviceName, result)
-                throw new Error('no playing')
+                // throw new Error('no playing')
             }
         } catch (e) {
             playing = false;
@@ -135,7 +136,7 @@ module.exports = NodeHelper.create({
                 this.sendSocketNotification("CURRENT_PLAYBACK_TRUE_" + config.deviceName, result);
                 setTimeout(() => {
                     this.updatePulse(config, serial)
-                }, this.config.updateInterval);
+                }, config.updateInterval);
             }
         })
     },

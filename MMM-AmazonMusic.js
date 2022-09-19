@@ -67,6 +67,7 @@ Module.register("MMM-AmazonMusic", {
 
   // Socket NOTI from Node Helper
   socketNotificationReceived: function (noti, payload) {
+    console.log(noti)
     switch (noti) {
       // get current device and parse response serveur
       case "CURRENT_DEVICES_" + this.config.deviceName:
@@ -102,8 +103,6 @@ Module.register("MMM-AmazonMusic", {
 
   // Met a jour le dom avec les information de la playlist en cours
   updateCurrentPlayback: function (current) {
-    console.log(current);
-    console.log(this.config.deviceName);
     if (!current || current.playerInfo.state === null) { return };
     if (current.playerInfo.state !== null) {
       if (!this.currentPlayback) {
