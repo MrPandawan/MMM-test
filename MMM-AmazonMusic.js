@@ -48,10 +48,8 @@ Module.register("MMM-AmazonMusic", {
   // Get le device online and parse function
   checkDevicesOnline: function (devices) {
     let obj = JSON.parse(devices)
-    console.log(obj)
     for (let index = 0; index < obj.length; index++) {
       const element = obj[index];
-      console.log(this.config.deviceName);
       if (this.config.deviceName === element.name && element.online) {
         if (element.capabilities.includes("AUDIO_PLAYER")) {
           this.config.deviceSerial = element.serial;
@@ -67,7 +65,6 @@ Module.register("MMM-AmazonMusic", {
 
   // Socket NOTI from Node Helper
   socketNotificationReceived: function (noti, payload) {
-    console.log(noti)
     switch (noti) {
       // get current device and parse response serveur
       case "CURRENT_DEVICES_" + this.config.deviceName:
@@ -112,19 +109,20 @@ Module.register("MMM-AmazonMusic", {
         this.updateProgress(current)
       } else {
         if (this.currentPlayback.playerInfo.state !== current.playerInfo.state) {
-          console.log("Change State");
+          this.updateSongInfo(current)
           this.updatePlaying(current);
           this.currentPlayback = current;
           return;
         }
-        else if (this.currentPlayback.playerInfo.infoText.title !== current.playerInfo.infoText.title) {
+        else if ((this.currentPlayback.playerInfo.infoText.title !== current.playerInfo.infoText.title)
+        || (this.currentPlayback.playerInfo.infoText.subText1 !== current.playerInfo.infoText.subText1)) {
           this.updateSongInfo(current)
-          this.updatePlaying(current)
         }
-        if ((this.currentPlayback.playerInfo.progress.mediaProgress
+        else if ((this.currentPlayback.playerInfo.progress.mediaProgress
           !== current.playerInfo.progress.mediaProgress)
           && this.currentPlayback.playerInfo.progress.mediaProgress <= (current.playerInfo.progress.mediaProgress)) {
-          this.updateProgress(current)
+            this.updateSongInfo(current)
+            this.updateProgress(current)
         }
       }
     }
@@ -159,7 +157,6 @@ Module.register("MMM-AmazonMusic", {
 
     end.innerHTML = msToTime(songDur)
     curbar.innerHTML = msToTime(cur)
-    console.log(songDur, cur)
     now.style.width = pros + "%"
   },
 
@@ -168,7 +165,6 @@ Module.register("MMM-AmazonMusic", {
     if (!newPlayback) return
     if (!newPlayback.playerInfo) return
     var sDom = document.getElementById("AMAZONMUSIC" + this.config.deviceName.replace(/\s+/g, ''));
-    console.log(sDom)
     sDom.classList.remove("noPlayback")
 
     var cover_img = document.getElementById("AMAZONMUSIC_COVER_IMAGE" + this.config.deviceName.replace(/\s+/g, ''))
@@ -195,7 +191,7 @@ Module.register("MMM-AmazonMusic", {
     //   }
     // }
     artist.textContent = artistName
-    this.sendNotification("AMAZONMUSIC_UPDATE_SONG_INFO", newPlayback)
+    // this.sendNotification("AMAZONMUSIC_UPDATE_SONG_INFO", newPlayback)
   },
 
   // update device
@@ -275,7 +271,6 @@ Module.register("MMM-AmazonMusic", {
 
   clickRepeat: function () {
     repeat = !repeat;
-    console.log(repeat);
     this.sendSocketNotification("REPEAT_" + this.config.deviceName, { device: this.config.deviceSerial, value: repeat })
   },
 

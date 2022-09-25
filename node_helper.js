@@ -4,7 +4,7 @@
 "use strict"
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
-
+const moment= require('moment') 
 const fs = require("fs")
 const path = require("path")
 const AmazonMusic = require("./AmazonMusic.js")
@@ -47,7 +47,6 @@ module.exports = NodeHelper.create({
     // Init after DOM_OBJECTS_CREATED
     // Define config HERE
     initAfterLoading: async function (config) {
-        console.log(config)
         this.config.push(config)
         await this.updateDevicesConnects(config).then(() => {
             console.log(colorCyan, '========== [MMM-AmazonMusic] Starting On ' + config.deviceName + ' ==========');
@@ -77,7 +76,7 @@ module.exports = NodeHelper.create({
             console.error(colorRed, "internet connexion failed OR SERVER amazon down retry to connect");
             setTimeout(() => {
                 this.updateDevicesConnects(config);
-            }, 3000);
+            }, 1000 - moment().milliseconds() + 50)
         });
     },
 
@@ -88,7 +87,7 @@ module.exports = NodeHelper.create({
                 if (result) {
                     resolve(result);
                 } else {
-                    console.log("ERREUR Code no playblack found:", code, error);
+                    console.error("ERREUR Code no playblack found:", code, error);
                     reject(error);
                 }
             });
@@ -96,7 +95,6 @@ module.exports = NodeHelper.create({
     },
 
     findCurrentPlayBack: async function (config, serial) {
-
         let playing = false;
         try {
             playing = true;
@@ -107,19 +105,19 @@ module.exports = NodeHelper.create({
             }
         } catch (e) {
             playing = false;
-            console.log("[AMAZON] This Amazon is not playing:", config.deviceName)
+            console.error("[AMAZON] This Amazon is not playing:", config.deviceName)
         }
         // playing is false so retry
         if (!playing) {
             this.sendSocketNotification("CURRENT_PLAYBACK_FAIL_" + config.deviceName);
             setTimeout(() => {
                 this.findCurrentPlayBack(config, serial);
-            }, config.updateInterval);
+            }, config.updateInterval - moment().milliseconds() + 50);
             // amazonmusic is true so update Pulse to set music
         } else {
             setTimeout(() => {
                 this.updatePulse(config, serial);
-            }, config.updateInterval)
+            }, config.updateInterval - moment().milliseconds() + 50)
         }
     },
 
@@ -134,9 +132,9 @@ module.exports = NodeHelper.create({
                 this.sendSocketNotification("CURRENT_PLAYBACK_FAIL_" + config.deviceName);
             } else {
                 this.sendSocketNotification("CURRENT_PLAYBACK_TRUE_" + config.deviceName, result);
-                setTimeout(() => {
-                    this.updatePulse(config, serial)
-                }, config.updateInterval);
+                    setTimeout(() => {
+                        this.updatePulse(config, serial)
+                    }, config.updateInterval - moment().milliseconds() + 200)
             }
         })
     },
